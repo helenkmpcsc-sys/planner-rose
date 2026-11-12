@@ -152,6 +152,7 @@ p { margin: 0; }
 .cal .wd { text-align: center; font-size: .7rem; color: var(--muted); letter-spacing: .1em; padding-bottom: 4px; }
 .cal button.day { aspect-ratio: 1 / 1; max-width: 100%; border-radius: 14px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px; font-size: .9rem; font-variant-numeric: tabular-nums; }
 .cal button.day.out { color: var(--muted); opacity: .45; }
+.cal button.day.range { background: var(--nude-soft); }
 .cal button.day.today { box-shadow: inset 0 0 0 1px var(--rose); }
 .cal button.day.sel { background: var(--rose); color: #fff; }
 .cal button.day.sel .dots i { background: #fff !important; }
@@ -351,9 +352,76 @@ const QUOTES = [
   'Bons hábitos são votos para quem você quer ser.', 'Sua energia é preciosa, invista bem.', 'O progresso mora na repetição.', 'Você não está atrasada, está no seu tempo.',
   'Tudo bem fazer o mínimo em dias difíceis.', 'Cuide do corpo; é o único lugar onde você mora.', 'Termine o dia com um obrigado.', 'Clareza vem de colocar no papel.',
   'Seja firme nas metas e flexível no caminho.', 'Hoje é página em branco: escreva com carinho.', 'Coragem é começar mesmo com medo.', 'Tudo que é bem planejado fica mais leve.',
-  'Sorria para a pessoa no espelho.', 'Você constrói a rotina; não deixe que ela construa você.', 'Alegria também é compromisso.', 'Um dia de cada vez, sempre.'
+  'Sorria para a pessoa no espelho.', 'Você constrói a rotina; não deixe que ela construa você.', 'Alegria também é compromisso.', 'Um dia de cada vez, sempre.',
+  'Cuide das suas raízes e os galhos cuidam de si.', 'Um dia organizado começa na noite anterior.', 'Beba água, respire fundo e siga.', 'Você pode ir devagar e ainda assim chegar.', 'Escolha uma prioridade e honre-a hoje.',
+  'Seu valor não depende da sua produtividade.', 'Arrume a cama: é a primeira vitória do dia.', 'Gastar com consciência também é autocuidado.', 'O que hoje parece difícil, amanhã será rotina.', 'Nem todo dia rende; todo dia ensina.',
+  'Ouça o seu corpo antes que ele precise gritar.', 'Sua história ainda está sendo escrita.', 'Pequenas economias constroem grandes viagens.', 'Dez minutos de prática valem mais que nenhum.', 'A pressa é inimiga da beleza dos detalhes.',
+  'Dê a si mesma a pausa que você dá aos outros.', 'Hoje é um ótimo dia para riscar algo da lista.', 'Gentileza é força, não fraqueza.', 'O que é seu encontra o caminho até você.', 'Quem planta cuidado colhe tranquilidade.',
+  'Comece pelo mais simples e ganhe impulso.', 'Você não precisa de motivação, precisa de um primeiro passo.', 'Sua casa, seu ritmo, suas regras.', 'Organizar o dinheiro é organizar a vida.', 'Errar faz parte de quem está tentando.',
+  'Leve leveza para onde você for.', 'Hoje, faça uma coisa só por prazer.', 'Seja paciente com quem está aprendendo: você.', 'Cada nota tocada é um passo na música.', 'Um idioma novo abre uma janela nova.',
+  'Ler é viajar sem sair do sofá.', 'O sono é o melhor investimento da noite.', 'Diga a alguém que você se importa.', 'Não é sobre ter tempo, é sobre escolher o tempo.', 'Sua presença já é um presente.',
+  'Mova o corpo e a mente agradece.', 'Um sorriso muda o clima de qualquer sala.', 'Confie no processo, mesmo quando ele é lento.', 'Planeje a semana e a semana cuida de você.', 'Você merece um dia bonito; construa-o.',
+  'Silêncio também é resposta.', 'O cansaço é sinal, não fracasso.', 'Hoje, troque a cobrança pelo carinho.', 'Cada conta paga é um peso a menos.', 'Estude hoje o que você vai agradecer amanhã.',
+  'Ninguém floresce o ano inteiro, e tudo bem.', 'Faça o possível com o que tem agora.', 'Um café, uma lista, um plano: pronto.', 'Disciplina é lembrar do que você quer.', 'Seus limites também merecem respeito.',
+  'Comemore o que já deu certo esta semana.', 'Você é maior do que os seus dias ruins.', 'Cuidar da pele é reservar um minuto para você.', 'Organize o espaço e a cabeça acompanha.', 'Não deixe para amanhã o carinho de hoje.',
+  'Um passo de cada vez ainda é avançar.', 'O equilíbrio se ajusta todos os dias.', 'Seja curiosa: a vida responde.', 'Seu tempo livre também é importante.', 'Hoje é dia de tratar bem a si mesma.',
+  'Cada página lida é uma conversa com alguém.', 'Pare, olhe ao redor, agradeça.', 'Metas claras deixam o caminho mais curto.', 'O que você cultiva por dentro aparece por fora.', 'Hoje vale mais feito com amor do que perfeito.',
+  'Seu esforço de hoje é a conquista de amanhã.', 'Não carregue o mundo; carregue só a sua bolsa.', 'A vida acontece no meio da rotina.', 'Mais água, menos preocupação.', 'Escute uma música que te faça bem.',
+  'O dinheiro guardado hoje é escolha livre amanhã.', 'Coragem é dizer sim a si mesma.', 'Ser constante é mais bonito que ser intensa.', 'Você aprende rápido quando aprende com calma.', 'Dias nublados também fazem flores crescerem.',
+  'Faça uma lista e liberte a mente.', 'O seu melhor muda a cada dia, e está tudo certo.', 'Encontre beleza no comum.', 'Tempo de qualidade com quem você ama não volta.', 'Recomece quantas vezes forem precisas.',
+  'Seu corpo te carrega todos os dias: agradeça.', 'Respire em quatro tempos e solte devagar.', 'Hoje é dia de fazer o que prometeu a si.', 'Uma conquista pequena ainda é conquista.', 'Delegar também é sabedoria.',
+  'Cozinhar para si é um gesto de amor.', 'Um passeio ao ar livre resolve muita coisa.', 'Antes de comprar, pergunte: eu preciso?', 'A sua paz vale mais que ter razão.', 'Estudar é plantar árvores para a sua sombra.',
+  'Seja a primeira a acreditar em você.', 'Toda grande mudança começou pequena.', 'Desligue o celular e ligue-se em você.', 'O hoje é o único dia em que dá para agir.', 'Rotina boa é aquela que cabe na sua vida.',
+  'Seus sonhos merecem um lugar na agenda.', 'O progresso não é linear, e isso é normal.', 'Uma boa noite de sono resolve metade dos problemas.', 'Ria de si mesma de vez em quando.', 'Você está construindo algo bonito.',
+  'Organize as finanças e durma tranquila.', 'Prática é o segredo que não tem segredo.', 'Cuide das amizades como cuida das plantas.', 'Comece a semana com intenção.', 'Termine a semana com gratidão.',
+  'Não existe dia perdido quando há aprendizado.', 'Seja leve com o que não depende de você.', 'A sua voz importa.', 'Faça uma pausa para um alongamento.', 'Reserve um momento só seu hoje.',
+  'Escrever o que sente alivia o coração.', 'O tempo dedicado a você nunca é desperdício.', 'Prefira o simples bem feito.', 'Seja fiel aos seus valores.', 'Uma meta sem prazo é só um desejo.',
+  'Seu ritmo não precisa de aprovação.', 'Arrisque-se um pouco hoje.', 'O medo diminui quando a gente age.', 'Valorize as pequenas rotinas que te sustentam.', 'Cada dia tem a sua dose de beleza.',
+  'Tente de novo, agora com mais experiência.', 'O dinheiro é ferramenta, não destino.', 'Conhecer-se é o maior estudo da vida.', 'Hoje, celebre ser quem você é.', 'Sua energia volta quando você descansa.',
+  'Faça das manhãs um ritual gostoso.', 'As noites também merecem carinho.', 'Cada hábito é um tijolinho na sua casa interior.', 'Perdoe-se pelo que não saiu como planejado.', 'Abrace o que está dando certo.',
+  'Você está mais perto do que imagina.', 'Escolha bem as suas batalhas.', 'Um livro aberto é uma porta aberta.', 'Treinar é celebrar o que o corpo consegue.', 'Nada floresce com pressa.',
+  'Agradeça pelo teto, pela comida e pelas pessoas.', 'Seja sua melhor companhia.', 'Hoje: menos rolagem, mais vida.', 'Dizer não é uma forma de dizer sim para você.', 'O caminho aparece quando você começa a andar.',
+  'Mantenha o foco no que você controla.', 'Sua rotina pode ser bonita e possível.', 'Um plano simples vence um plano perfeito na gaveta.', 'Você merece descansar sem culpa.', 'O cuidado com os detalhes faz a diferença.',
+  'Persistir é amar o processo.', 'Hoje é dia de tirar um sonho do papel.', 'Valorize o que você já conquistou.', 'Crescer dói um pouco e vale muito.', 'Toda especialista já foi iniciante.',
+  'Cada tecla do piano guarda uma descoberta.', 'Fale inglês errado até falar certo.', 'Investir em conhecimento rende para sempre.', 'Sua alegria é contagiante; espalhe.', 'Faça as pazes com o espelho.',
+  'Mais gentileza nas palavras que você diz a si.', 'Dias calmos também são dias produtivos.', 'Seu tempo é o seu bem mais precioso.', 'A organização abre espaço para o improviso.', 'Sorria: você chegou até aqui.',
+  'O que você faz todo dia importa mais do que o que faz às vezes.', 'Hoje, beba mais um copo d’água.', 'Não compare caminhos; cada um tem a sua paisagem.', 'O descanso faz parte do treino.', 'Comece o dia com uma intenção gentil.',
+  'Encerre o dia com uma lembrança boa.', 'Você é capaz de coisas difíceis.', 'Simplifique: menos é mais.', 'Dedique-se ao que faz seu coração bater mais forte.', 'Cada real economizado é um passo rumo ao sonho.',
+  'Tudo bem pedir ajuda.', 'Saber parar também é saber continuar.', 'Hoje é dia de cuidar da mente.', 'O seu brilho não precisa ser diminuído.', 'Mantenha por perto quem te faz bem.',
+  'O que é bom merece ser repetido.', 'Um pouco de sol, um pouco de calma.', 'Escreva as suas metas e leia-as com frequência.', 'Você não precisa ver o fim para começar.', 'Toda manhã é uma nova chance.',
+  'Sua gentileza volta para você.', 'Desacelere: a vida não é uma corrida.', 'Use a criatividade para resolver o que parece difícil.', 'O amor-próprio também se pratica.', 'Ninguém conhece seu esforço como você.',
+  'Bons dias se constroem com boas escolhas.', 'Estar presente é o melhor presente.', 'A calma é uma superpotência.', 'Uma xícara de chá e um bom livro curam muita coisa.', 'Aprenda algo novo, mesmo que pequeno.',
+  'O que você evita hoje cresce amanhã; resolva.', 'Sua história inspira mais gente do que você imagina.', 'Cuide do seu jardim antes de olhar o do vizinho.', 'Hoje, seja generosa consigo.', 'A beleza mora na constância.',
+  'Cada treino é uma promessa cumprida.', 'Comprar menos e viver mais.', 'O conhecimento é seu para sempre.', 'Faça o que precisa ser feito e depois descanse.', 'Uma rotina leve é uma rotina possível.',
+  'Seu coração sabe o caminho; escute-o.', 'A vida fica mais bonita quando a gente presta atenção.', 'Cada dia é uma página nova do seu planner.', 'Seja a energia que você quer atrair.', 'Comece agora, ajuste depois.',
+  'Confie em você: você já se surpreendeu antes.', 'Um desafio por vez.', 'Organize hoje, aproveite amanhã.', 'A gratidão transforma o suficiente em muito.', 'Seu sono merece prioridade.',
+  'Hoje, faça algo pela primeira vez.', 'Gaste energia só com o que está ao seu alcance.', 'O tempo passa de qualquer jeito; use-o a seu favor.', 'Cuide de quem cuida de você.', 'Pequenos rituais tornam os dias especiais.',
+  'Tudo começa com uma decisão.', 'A sua calma é inegociável.', 'Leia um poema hoje.', 'Ouça mais, julgue menos.', 'Viva o hoje com intenção.',
+  'Prioridades claras, mente tranquila.', 'A persistência transforma o difícil em fácil.', 'O seu valor não está à venda.', 'Dê espaço para o novo.', 'Separe um tempo para não fazer nada.',
+  'Meta com rotina vira conquista.', 'Mantenha os pés no chão e os olhos no céu.', 'Sua leveza também é força.', 'Hoje, escolha o caminho mais gentil.', 'Os detalhes contam a sua história.',
+  'O planejamento é um abraço no seu futuro.', 'Seja paciente: as raízes crescem antes das flores.', 'Seu esforço não passa despercebido.', 'A gente cresce quando sai da zona de conforto.', 'Você é o projeto mais importante da sua vida.',
+  'Faça uma lista de coisas que te fazem feliz.', 'Cada dia vivido é um aprendizado.', 'Valorize o seu progresso, não a perfeição.', 'A rotina é o palco; você é a estrela.', 'Hoje vai dar certo.',
+  'Coma bem, durma bem, viva bem.', 'O universo gosta de quem se mexe.', 'Seja corajosa nas escolhas e gentil nas palavras.', 'O que é feito com carinho dura mais.', 'Sua rotina reflete os seus sonhos.',
+  'Seja grata pelo hoje, mesmo imperfeito.', 'O silêncio da manhã é um bom conselheiro.', 'Guardar dinheiro é dar liberdade ao seu futuro.', 'Cada acorde aprendido é uma vitória.', 'Hoje: uma palavra nova em inglês.',
+  'O seu jeito de fazer é válido.', 'Fique perto de quem soma.', 'A vida é feita de pequenos momentos.', 'Respeite as suas estações.', 'Siga no seu tempo, com carinho.',
+  'Pense em você com mais amor.', 'Organizar o tempo é ganhar tempo.', 'Você é mais forte do que pensa.', 'O bom humor deixa tudo mais leve.', 'Seu corpo pede movimento; atenda.',
+  'Hoje é um bom dia para ser feliz.', 'Confie no que você já sabe.', 'Faça o seu melhor e solte o resto.', 'A vida é curta para rotinas que não te fazem bem.', 'Celebre cada passo, por menor que seja.',
+  'Cada escolha consciente te aproxima de quem você quer ser.', 'Viva devagar, sinta mais.', 'Seu planner, suas conquistas.', 'Novos hábitos pedem paciência.', 'Quem cuida de si cuida melhor do mundo.',
+  'A esperança é um bom combustível.', 'Hoje, desacelere na hora do almoço.', 'Suas ideias merecem ser ouvidas.', 'Tudo o que é vivo cresce no seu tempo.', 'Um gesto gentil muda o dia de alguém.',
+  'Seja firme com as metas e doce consigo.', 'Você está exatamente onde precisa estar para começar.', 'Cada noite bem dormida é um presente para amanhã.', 'Investir em você nunca é desperdício.', 'Ontem ensinou; hoje é para viver.',
+  'Arrume a bolsa do dia com calma.', 'Pequenas pausas evitam grandes cansaços.', 'O que você sente importa.', 'Faça do seu lar um refúgio.', 'Quem se organiza tem mais tempo para viver.',
+  'Seja persistente como a água.', 'Hoje, dê uma chance para algo novo.', 'O caminho fica mais leve com boas companhias.', 'Escreva hoje uma linha no seu diário.', 'Tudo bem não estar bem todos os dias.',
+  'A sua jornada é única.', 'Seu esforço constrói a sua liberdade.', 'Prefira progresso a promessas.', 'O ano é feito de dias como o de hoje.', 'Cultive pensamentos que te fazem bem.',
+  'Uma boa rotina é um carinho diário.', 'Ao fim do dia, você fez o suficiente.', 'Siga em frente com o coração tranquilo.', 'Feche o ano com orgulho de quem você se tornou.', 'Que cada dia tenha um pouco de alegria.',
+  'Planeje os sonhos do próximo ano com carinho.', 'Agradeça por tudo o que este ano te ensinou.', 'Você floresceu mais do que percebe.', 'O descanso de fim de ano é merecido.', 'Um novo ciclo começa: vá com leveza.'
 ];
-const quoteFor = d => QUOTES[(Math.floor(parse(d).getTime() / 86400000) % QUOTES.length + QUOTES.length) % QUOTES.length];
+// uma frase para cada dia do ano (em ano bissexto, 28 e 29 de fevereiro repetem a frase)
+function quoteFor(d) {
+  const x = parse(d), y = x.getFullYear(), doy = Math.round((x - new Date(y, 0, 1)) / 86400000);
+  const leap = new Date(y, 1, 29).getMonth() === 1;
+  const i = leap && doy >= 59 ? doy - 1 : doy;
+  return QUOTES[Math.min(i, QUOTES.length - 1)];
+}
 
 /* ---------- estado ---------- */
 const DEFAULT_CATS = [
@@ -483,9 +551,15 @@ function taskItem(t, d) {
     <button class="row-main" data-act="editTask" data-id="${t.id}"><span class="t"><i class="prio ${t.priority || 'media'}"></i>${esc(t.title)}</span>${meta || late ? `<small>${late ? `<span class="chip bad">atrasada · ${fmtShort(t.date)}</span> ` : ''}${esc(meta)}</small>` : ''}</button>
   </li>`;
 }
-function eventItem(e) {
-  return `<li><span class="emo num" style="font-size:.78rem">${e.time ? esc(e.time) : '—'}</span>
-    <button class="row-main" data-act="editEvent" data-id="${e.id}"><span class="t">${esc(e.title)}</span>${e.note ? `<small>${esc(e.note)}</small>` : ''}</button></li>`;
+// evento de um dia (date) ou de vários dias (date → end)
+const evOn = (e, d) => d >= e.date && d <= (e.end || e.date);
+const evMulti = e => !!e.end && e.end > e.date;
+function eventItem(e, d) {
+  const multi = evMulti(e), n = multi ? daysBetween(e.date, e.end) + 1 : 1, k = multi && d ? daysBetween(e.date, d) + 1 : 0;
+  const left = multi ? (d === e.date && e.time ? esc(e.time) : '↔') : (e.time ? esc(e.time) : '—');
+  const info = [multi ? `${fmtShort(e.date)} → ${fmtShort(e.end)}${k ? ` · dia ${k} de ${n}` : ''}` : '', e.note ? esc(e.note) : ''].filter(Boolean).join(' · ');
+  return `<li><span class="emo num" style="font-size:.78rem">${left}</span>
+    <button class="row-main" data-act="editEvent" data-id="${e.id}"><span class="t">${esc(e.title)}</span>${info ? `<small>${info}</small>` : ''}</button></li>`;
 }
 function dueChip(due) {
   const n = daysBetween(today(), due);
@@ -518,7 +592,7 @@ views.hoje = () => {
   const water = S.water[d] || 0, goal = S.settings.waterGoal || 8;
   const habN = S.habits.filter(x => habitDone(x.id, d)).length;
   const spentToday = sum(S.transactions.filter(t => t.date === d && t.type === 'despesa'));
-  const events = S.events.filter(e => e.date === d).sort((a, b) => (a.time || '').localeCompare(b.time || ''));
+  const events = S.events.filter(e => evOn(e, d)).sort((a, b) => (a.time || '').localeCompare(b.time || ''));
   const bills = S.bills.filter(b => !b.paidOn && b.due <= addDays(d, 7)).sort((a, b) => a.due.localeCompare(b.due));
   const invs = []; for (let i = 0; i <= 7; i++) invs.push(...invoicesDue(addDays(d, i)));
   const mood = S.mood[d];
@@ -542,7 +616,7 @@ views.hoje = () => {
   <section class="card">
     <div class="sec-head"><h2>Compromissos</h2><button class="link" data-act="newEvent" data-date="${d}">+ Evento</button></div>
     ${(() => { const cs = S.study.courses.filter(c => !c.done && c.deadline && c.deadline >= d && c.deadline <= addDays(d, 7));
-      return events.length || cs.length ? `<ul class="list">${events.map(eventItem).join('')}${cs.map(c => `<li><span class="emo">🎓</span><button class="row-main" data-act="editCourse" data-id="${c.id}"><span class="t">${esc(c.title)}</span><small>prazo do curso</small></button><span class="row-end">${dueChip(c.deadline)}</span></li>`).join('')}</ul>` : `<p class="empty">Agenda livre hoje.</p>`; })()}
+      return events.length || cs.length ? `<ul class="list">${events.map(e => eventItem(e, d)).join('')}${cs.map(c => `<li><span class="emo">🎓</span><button class="row-main" data-act="editCourse" data-id="${c.id}"><span class="t">${esc(c.title)}</span><small>prazo do curso</small></button><span class="row-end">${dueChip(c.deadline)}</span></li>`).join('')}</ul>` : `<p class="empty">Agenda livre hoje.</p>`; })()}
   </section>
   ${bills.length || invs.length ? `<section class="card">
     <div class="sec-head"><h2>Contas da semana</h2><a class="link" href="#financas" data-fin="contas">Ver todas</a></div>
@@ -560,10 +634,11 @@ views.agenda = () => {
   let cells = '';
   for (let i = 0; i < 42; i++) {
     const d = addDays(start, i);
-    const hasT = S.tasks.some(x => x.repeat !== 'daily' && occurs(x, d)), hasE = S.events.some(e => e.date === d) || S.study.courses.some(c => !c.done && c.deadline === d), pk = periodKind(d, cs), hasB = billsDue(d).length || invoicesDue(d).length;
-    cells += `<button class="day ${mKey(d) !== k ? 'out' : ''} ${d === t ? 'today' : ''} ${d === sel ? 'sel' : ''}" data-act="pickDay" data-date="${d}" aria-label="${fmtLong(d)}" aria-pressed="${d === sel}">${parse(d).getDate()}<span class="dots">${hasT ? '<i class="d-task"></i>' : ''}${hasE ? '<i class="d-event"></i>' : ''}${hasB ? '<i class="d-bill"></i>' : ''}${pk === 'real' ? '<i class="d-cycle"></i>' : pk === 'pred' ? '<i class="d-pred"></i>' : ''}</span></button>`;
+    const hasT = S.tasks.some(x => x.repeat !== 'daily' && occurs(x, d)), hasE = S.events.some(e => evOn(e, d)) || S.study.courses.some(c => !c.done && c.deadline === d), pk = periodKind(d, cs), hasB = billsDue(d).length || invoicesDue(d).length;
+    const inRange = S.events.some(e => evMulti(e) && evOn(e, d));
+    cells += `<button class="day ${mKey(d) !== k ? 'out' : ''} ${inRange ? 'range' : ''} ${d === t ? 'today' : ''} ${d === sel ? 'sel' : ''}" data-act="pickDay" data-date="${d}" aria-label="${fmtLong(d)}" aria-pressed="${d === sel}">${parse(d).getDate()}<span class="dots">${hasT ? '<i class="d-task"></i>' : ''}${hasE ? '<i class="d-event"></i>' : ''}${hasB ? '<i class="d-bill"></i>' : ''}${pk === 'real' ? '<i class="d-cycle"></i>' : pk === 'pred' ? '<i class="d-pred"></i>' : ''}</span></button>`;
   }
-  const tasks = S.tasks.filter(x => occurs(x, sel)).sort(byPri), events = S.events.filter(e => e.date === sel).sort((a, b) => (a.time || '').localeCompare(b.time || ''));
+  const tasks = S.tasks.filter(x => occurs(x, sel)).sort(byPri), events = S.events.filter(e => evOn(e, sel)).sort((a, b) => (a.time || '').localeCompare(b.time || ''));
   const bills = billsDue(sel), invs = invoicesDue(sel), courses = S.study.courses.filter(c => !c.done && c.deadline === sel), pkSel = periodKind(sel, cs);
   const undated = S.tasks.filter(x => (x.repeat || 'none') === 'none' && !x.date && !isDone(x, sel));
   return `
@@ -576,7 +651,7 @@ views.agenda = () => {
   <section class="card">
     <div class="sec-head"><h2>${esc(fmtLong(sel).replace(/^./, c => c.toUpperCase()))}</h2></div>
     <div class="btn-row"><button class="btn sm" data-act="newTask" data-date="${sel}">+ Tarefa</button><button class="btn sm ghost" data-act="newEvent" data-date="${sel}">+ Evento</button>${sel !== t ? `<button class="btn sm line" data-act="pickDay" data-date="${t}">Ir para hoje</button>` : ''}</div>
-    ${events.length ? `<p class="eyebrow">Eventos</p><ul class="list">${events.map(eventItem).join('')}</ul>` : ''}
+    ${events.length ? `<p class="eyebrow">Eventos</p><ul class="list">${events.map(e => eventItem(e, sel)).join('')}</ul>` : ''}
     ${tasks.length ? `<p class="eyebrow">Tarefas</p><ul class="list">${tasks.map(x => taskItem(x, sel)).join('')}</ul>` : ''}
     ${bills.length || invs.length ? `<p class="eyebrow">Vencimentos</p><ul class="list">${bills.map(billItem).join('')}${invs.map(v => `<li><span class="emo">💳</span><div class="row-main"><span class="t">Fatura ${esc(v.card.name)}</span><small>${fmtMonth(v.key)}</small></div><span class="row-end">${money(v.total)}</span></li>`).join('')}</ul>` : ''}
     ${courses.length ? `<p class="eyebrow">Prazos de cursos</p><ul class="list">${courses.map(c => `<li><span class="emo">🎓</span><button class="row-main" data-act="editCourse" data-id="${c.id}"><span class="t">${esc(c.title)}</span></button></li>`).join('')}</ul>` : ''}
@@ -991,15 +1066,19 @@ function taskForm(t, date) {
   });
 }
 function eventForm(ev, date) {
-  const isNew = !ev; ev = ev || { title: '', date: date || today(), time: '', note: '' };
+  const isNew = !ev; ev = ev || { title: '', date: date || today(), end: '', time: '', note: '' };
   openSheet({
     title: isNew ? 'Novo evento' : 'Editar evento',
-    body: `<label class="f">Título<input name="title" id="eTitle" value="${esc(ev.title)}" maxlength="120" required></label>
-      <div class="f-row"><label class="f">Data<input type="date" name="date" id="eDate" value="${esc(ev.date)}" required></label><label class="f">Hora<input type="time" name="time" id="eTime" value="${esc(ev.time)}"></label></div>
+    body: `<label class="f">Título<input name="title" id="eTitle" value="${esc(ev.title)}" maxlength="120" placeholder="ex.: Viagem para a praia" required></label>
+      <div class="f-row"><label class="f">Início<input type="date" name="date" id="eDate" value="${esc(ev.date)}" required></label><label class="f">Fim (vários dias)<input type="date" name="end" id="eEnd" value="${esc(ev.end || '')}"></label></div>
+      <label class="f">Hora (opcional)<input type="time" name="time" id="eTime" value="${esc(ev.time)}"></label>
+      <p class="small muted">Para um evento de um dia só, deixe o “Fim” vazio.</p>
       <label class="f">Observação<textarea name="note" id="eNote" rows="2" maxlength="300">${esc(ev.note)}</textarea></label>`,
+    onOpen: f => { f.date.addEventListener('change', () => { if (f.end.value && f.end.value < f.date.value) f.end.value = ''; f.end.min = f.date.value; }); f.end.min = f.date.value; },
     onSubmit: fd => {
-      const title = fd.get('title').trim(); if (!title) return 'Dê um título ao evento.'; if (!fd.get('date')) return 'Escolha a data.';
-      const data = { title, date: fd.get('date'), time: fd.get('time'), note: fd.get('note').trim() };
+      const title = fd.get('title').trim(); if (!title) return 'Dê um título ao evento.'; if (!fd.get('date')) return 'Escolha a data de início.';
+      const end = fd.get('end') || null; if (end && end < fd.get('date')) return 'O fim precisa ser no mesmo dia ou depois do início.';
+      const data = { title, date: fd.get('date'), end: end && end > fd.get('date') ? end : null, time: fd.get('time'), note: fd.get('note').trim() };
       if (isNew) S.events.push({ id: uid(), ...data }); else Object.assign(ev, data);
       ui.calDay = data.date; ui.calMonth = mKey(data.date);
       commit(isNew ? 'Evento criado' : 'Evento atualizado');
@@ -1391,7 +1470,8 @@ function sampleData(name) {
   s.events = [
     { id: uid(), title: 'Pilates', date: d, time: '18:30', note: '' },
     { id: uid(), title: 'Dentista', date: addDays(d, 2), time: '15:00', note: 'Levar carteirinha do plano' },
-    { id: uid(), title: 'Aniversário da Ju', date: addDays(d, 6), time: '20:00', note: '' }
+    { id: uid(), title: 'Aniversário da Ju', date: addDays(d, 6), time: '20:00', note: '' },
+    { id: uid(), title: 'Viagem para a serra', date: addDays(d, 15), end: addDays(d, 18), time: '07:00', note: 'Pousada reservada' }
   ];
   s.cards = [{ id: 'cardA', name: 'Cartão principal', closeDay: 5, dueDay: 12, limit: 500000 }];
   const tx = [], add = (dd, type, amount, catId, desc, card) => tx.push({ id: uid(), type, amount, catId, desc, date: dd, method: card ? 'cartao' : 'conta', cardId: card ? 'cardA' : '' });
