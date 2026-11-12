@@ -1,0 +1,1474 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Planner Rosé">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='22' fill='%23FAF7F2'/%3E%3Ctext x='50' y='70' font-size='58' text-anchor='middle' fill='%23C98B8B' font-family='Georgia,serif'%3E%E2%9C%BF%3C/text%3E%3C/svg%3E">
+<link rel="apple-touch-icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='22' fill='%23FAF7F2'/%3E%3Ctext x='50' y='70' font-size='58' text-anchor='middle' fill='%23C98B8B' font-family='Georgia,serif'%3E%E2%9C%BF%3C/text%3E%3C/svg%3E">
+<style>:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}body{margin:0}img{max-width:100%}[hidden]{display:none!important}</style>
+<title>Planner Rosé</title>
+<meta name="theme-color" content="#FAF7F2">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&family=Jost:wght@300;400;500&display=swap">
+<style>
+/* Layout: coluna única de planner (máx. 520px), cartões brancos sobre papel off-white, barra de abas fixa embaixo. */
+:root {
+  --bg: #FAF7F2;
+  --surface: #FFFFFF;
+  --nude: #E8D5C4;
+  --nude-soft: #F4EBE2;
+  --rose: #C98B8B;
+  --rose-deep: #A9696B;
+  --ink: #4A3B38;
+  --muted: #8E7D77;
+  --line: #EDE3DA;
+  --ok: #7FA27B;
+  --warn: #CF9A4E;
+  --bad: #C0605F;
+  --shadow: 0 1px 2px rgba(74,59,56,.04), 0 8px 24px rgba(169,105,107,.07);
+  --font-display: "Cormorant Garamond", "Playfair Display", Georgia, "Times New Roman", serif;
+  --font-body: "Jost", "Nunito", "Segoe UI", system-ui, -apple-system, sans-serif;
+  --r: 20px;
+  --tabbar-h: 68px;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #1E1816; --surface: #29211F; --nude: #4B3D36; --nude-soft: #342A27;
+    --rose: #D9A1A0; --rose-deep: #EBB9B6; --ink: #F3E9E2; --muted: #B6A49C; --line: #3D322E;
+    --ok: #9DC198; --warn: #E2B26A; --bad: #E58A88;
+    --shadow: 0 1px 2px rgba(0,0,0,.25), 0 8px 24px rgba(0,0,0,.25);
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #1E1816; --surface: #29211F; --nude: #4B3D36; --nude-soft: #342A27;
+  --rose: #D9A1A0; --rose-deep: #EBB9B6; --ink: #F3E9E2; --muted: #B6A49C; --line: #3D322E;
+  --ok: #9DC198; --warn: #E2B26A; --bad: #E58A88;
+  --shadow: 0 1px 2px rgba(0,0,0,.25), 0 8px 24px rgba(0,0,0,.25);
+  color-scheme: dark;
+}
+* { box-sizing: border-box; }
+html, body { min-height: 100%; }
+body {
+  background: var(--bg); color: var(--ink);
+  font-family: var(--font-body); font-size: 15px; font-weight: 400; line-height: 1.5;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+  -webkit-tap-highlight-color: transparent;
+}
+button, input, select, textarea { font: inherit; color: inherit; }
+button { cursor: pointer; background: none; border: 0; padding: 0; }
+:focus-visible { outline: 2px solid var(--rose); outline-offset: 2px; border-radius: 10px; }
+main {
+  max-width: 520px; margin: 0 auto;
+  padding-block: 20px calc(var(--tabbar-h) + 40px + env(safe-area-inset-bottom, 0px));
+  display: flex; flex-direction: column; gap: 18px;
+}
+h1, h2, h3 { font-family: var(--font-display); font-weight: 500; margin: 0; text-wrap: balance; letter-spacing: .005em; }
+h1 { font-size: 2.3rem; line-height: 1.05; }
+h1 em { font-style: italic; color: var(--rose-deep); font-weight: 500; }
+h2 { font-size: 1.45rem; line-height: 1.15; }
+h3 { font-size: 1.15rem; }
+p { margin: 0; }
+.eyebrow { font-size: .72rem; letter-spacing: .16em; text-transform: uppercase; color: var(--muted); font-weight: 500; }
+.muted { color: var(--muted); }
+.small { font-size: .85rem; }
+.num { font-variant-numeric: tabular-nums; }
+
+/* cartões e seções */
+.card { background: var(--surface); border-radius: var(--r); box-shadow: var(--shadow); padding: 18px; display: flex; flex-direction: column; gap: 12px; min-width: 0; }
+.sec-head { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; }
+.link { font-size: .85rem; color: var(--rose-deep); font-weight: 500; }
+.empty { color: var(--muted); font-size: .9rem; padding: 6px 0; }
+.divider { height: 1px; background: var(--line); border: 0; margin: 0; }
+
+/* hero / saudação */
+.hello { display: flex; flex-direction: column; gap: 6px; padding-top: 6px; }
+.quote { margin: 0; padding: 16px 18px; border-radius: var(--r); background: var(--nude-soft); display: flex; gap: 12px; align-items: flex-start; }
+.quote span { font-family: var(--font-display); font-size: 2.2rem; line-height: .8; color: var(--rose); }
+.quote blockquote { margin: 0; font-family: var(--font-display); font-style: italic; font-size: 1.12rem; line-height: 1.35; }
+
+.stats { display: grid; grid-template-columns: repeat(2, minmax(0,1fr)); gap: 10px; }
+.stat { background: var(--surface); border-radius: 18px; box-shadow: var(--shadow); padding: 14px; display: flex; flex-direction: column; gap: 4px; min-width: 0; text-align: left; }
+.stat b { font-family: var(--font-display); font-size: 1.7rem; font-weight: 500; line-height: 1.1; font-variant-numeric: tabular-nums; }
+.stat .bar { margin-top: 6px; }
+
+.bar { height: 6px; border-radius: 99px; background: var(--nude-soft); overflow: hidden; }
+.bar > i { display: block; height: 100%; border-radius: inherit; background: var(--rose); width: 0; transition: width .6s ease; }
+.bar.warn > i { background: var(--warn); }
+.bar.bad > i { background: var(--bad); }
+.bar.ok > i { background: var(--ok); }
+
+/* listas */
+.list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; }
+.list > li { display: flex; align-items: center; gap: 12px; padding: 10px 0; border-top: 1px solid var(--line); min-width: 0; }
+.list > li:first-child { border-top: 0; }
+.row-main { flex: 1; min-width: 0; text-align: left; display: flex; flex-direction: column; gap: 1px; }
+.row-main .t { overflow-wrap: anywhere; }
+.row-main small { color: var(--muted); font-size: .78rem; }
+.row-end { text-align: right; flex-shrink: 0; font-variant-numeric: tabular-nums; }
+.emo { width: 36px; height: 36px; border-radius: 12px; background: var(--nude-soft); display: grid; place-items: center; font-size: 1.05rem; flex-shrink: 0; }
+
+.check { width: 26px; height: 26px; border-radius: 50%; border: 1.5px solid var(--nude); display: grid; place-items: center; flex-shrink: 0; transition: background .2s, border-color .2s; }
+.check svg { width: 14px; height: 14px; stroke: var(--surface); opacity: 0; transform: scale(.6); transition: .2s; }
+.check[aria-pressed="true"] { background: var(--rose); border-color: var(--rose); }
+.check[aria-pressed="true"] svg { opacity: 1; transform: scale(1); }
+.done .t { text-decoration: line-through; color: var(--muted); }
+.prio { width: 7px; height: 7px; border-radius: 50%; display: inline-block; margin-right: 6px; vertical-align: 1px; }
+.prio.alta { background: var(--bad); } .prio.media { background: var(--warn); } .prio.baixa { background: var(--nude); }
+
+/* chips e botões */
+.chip { display: inline-flex; align-items: center; gap: 4px; font-size: .72rem; padding: 2px 9px; border-radius: 99px; background: var(--nude-soft); color: var(--muted); white-space: nowrap; font-weight: 500; }
+.chip.bad { background: color-mix(in srgb, var(--bad) 16%, transparent); color: var(--bad); }
+.chip.warn { background: color-mix(in srgb, var(--warn) 18%, transparent); color: var(--warn); }
+.chip.ok { background: color-mix(in srgb, var(--ok) 18%, transparent); color: var(--ok); }
+.btn { display: inline-flex; align-items: center; justify-content: center; gap: 6px; padding: 10px 16px; border-radius: 99px; font-weight: 500; font-size: .9rem; background: var(--rose); color: #fff; transition: transform .1s, background .2s; }
+:root[data-theme="dark"] .btn { color: #2A1F1D; }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .btn { color: #2A1F1D; } }
+.btn:active { transform: scale(.97); }
+.btn.ghost { background: var(--nude-soft); color: var(--ink); }
+.btn.line { background: transparent; border: 1px solid var(--nude); color: var(--ink); }
+.btn.danger { background: transparent; border: 1px solid color-mix(in srgb, var(--bad) 50%, transparent); color: var(--bad); }
+.btn.sm { padding: 6px 12px; font-size: .8rem; }
+.btn.block { width: 100%; }
+.btn-row { display: flex; gap: 8px; flex-wrap: wrap; }
+.icon-btn { width: 36px; height: 36px; border-radius: 50%; display: grid; place-items: center; background: var(--nude-soft); flex-shrink: 0; }
+.icon-btn svg { width: 18px; height: 18px; }
+
+.seg { display: flex; gap: 6px; overflow-x: auto; scrollbar-width: none; padding-bottom: 2px; }
+.seg::-webkit-scrollbar { display: none; }
+.seg button { padding: 7px 14px; border-radius: 99px; font-size: .85rem; white-space: nowrap; color: var(--muted); background: transparent; border: 1px solid var(--line); }
+.seg button[aria-pressed="true"] { background: var(--ink); border-color: var(--ink); color: var(--bg); }
+
+.month-nav { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+.month-nav h2 { text-align: center; }
+
+/* calendário */
+.cal { display: grid; grid-template-columns: repeat(7, minmax(0,1fr)); gap: 4px; }
+.cal .wd { text-align: center; font-size: .7rem; color: var(--muted); letter-spacing: .1em; padding-bottom: 4px; }
+.cal button.day { aspect-ratio: 1 / 1; max-width: 100%; border-radius: 14px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px; font-size: .9rem; font-variant-numeric: tabular-nums; }
+.cal button.day.out { color: var(--muted); opacity: .45; }
+.cal button.day.today { box-shadow: inset 0 0 0 1px var(--rose); }
+.cal button.day.sel { background: var(--rose); color: #fff; }
+.cal button.day.sel .dots i { background: #fff !important; }
+.dots { display: flex; gap: 3px; height: 5px; }
+.dots i { width: 5px; height: 5px; border-radius: 50%; display: block; }
+.d-task { background: var(--rose); } .d-event { background: var(--ink); } .d-bill { background: var(--warn); }
+.legend { display: flex; gap: 14px; flex-wrap: wrap; font-size: .75rem; color: var(--muted); }
+.legend span { display: inline-flex; align-items: center; gap: 6px; }
+
+/* finanças */
+.balance { background: var(--ink); color: var(--bg); border-radius: var(--r); padding: 20px; display: flex; flex-direction: column; gap: 14px; }
+.balance .eyebrow { color: color-mix(in srgb, var(--bg) 70%, transparent); }
+.balance b { font-family: var(--font-display); font-size: 2.6rem; font-weight: 500; line-height: 1; font-variant-numeric: tabular-nums; }
+.balance .split { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.balance .split div { display: flex; flex-direction: column; gap: 2px; font-variant-numeric: tabular-nums; }
+.pos { color: var(--ok); } .neg { color: var(--bad); }
+.chart-box { position: relative; width: 100%; max-width: 100%; }
+.chart-box.donut { width: 200px; height: 200px; max-width: 100%; margin: 0 auto; }
+.chart-box.bars { height: 200px; }
+.leg-list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 8px; }
+.leg-list li { display: flex; align-items: center; gap: 10px; font-size: .88rem; }
+.leg-list i { width: 10px; height: 10px; border-radius: 3px; flex-shrink: 0; }
+.leg-list span:nth-child(2) { flex: 1; min-width: 0; }
+.fab { position: fixed; right: max(18px, calc(env(safe-area-inset-right, 0px) + 18px)); bottom: calc(var(--tabbar-h) + 18px + env(safe-area-inset-bottom, 0px)); width: 56px; height: 56px; border-radius: 50%; background: var(--rose); color: #fff; display: grid; place-items: center; box-shadow: 0 10px 24px rgba(169,105,107,.35); z-index: 20; }
+.fab svg { width: 24px; height: 24px; }
+.card-plastic { border-radius: 18px; padding: 16px; background: linear-gradient(135deg, var(--nude) 0%, var(--rose) 100%); color: #fff; display: flex; flex-direction: column; gap: 10px; }
+.card-plastic .eyebrow { color: rgba(255,255,255,.8); }
+.card-plastic b { font-family: var(--font-display); font-size: 1.8rem; font-weight: 500; font-variant-numeric: tabular-nums; }
+.card-plastic .bar { background: rgba(255,255,255,.3); }
+.card-plastic .bar > i { background: #fff; }
+
+/* eu */
+.cups { display: flex; flex-wrap: wrap; gap: 6px; }
+.cup { width: 26px; height: 32px; border-radius: 4px 4px 9px 9px; border: 1.5px solid var(--nude); position: relative; overflow: hidden; }
+.cup.full::after { content: ""; position: absolute; inset: 35% 0 0; background: var(--rose); opacity: .8; }
+.water { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+.water b { font-family: var(--font-display); font-size: 2rem; font-weight: 500; font-variant-numeric: tabular-nums; }
+.moods { display: flex; justify-content: space-between; gap: 6px; }
+.moods button { flex: 1; aspect-ratio: 1/1; max-width: 56px; border-radius: 16px; font-size: 1.5rem; background: var(--nude-soft); transition: transform .15s, box-shadow .15s; }
+.moods button[aria-pressed="true"] { box-shadow: inset 0 0 0 2px var(--rose); transform: scale(1.06); background: var(--surface); }
+.mood-map { display: grid; grid-template-columns: repeat(7, minmax(0,1fr)); gap: 5px; }
+.mood-map div { aspect-ratio: 1/1; border-radius: 10px; background: var(--nude-soft); display: grid; place-items: center; font-size: .95rem; }
+.mood-map div.blank { background: transparent; }
+.mood-map div small { font-size: .62rem; color: var(--muted); }
+.week { display: flex; gap: 4px; }
+.week i { width: 9px; height: 9px; border-radius: 50%; background: var(--nude-soft); display: block; }
+.week i.on { background: var(--rose); }
+.sleep-bars { display: grid; grid-template-columns: repeat(7, minmax(0,1fr)); gap: 6px; align-items: end; height: 90px; }
+.sleep-bars div { display: flex; flex-direction: column; align-items: center; gap: 4px; height: 100%; justify-content: flex-end; }
+.sleep-bars span.b { width: 100%; max-width: 22px; border-radius: 8px 8px 4px 4px; background: var(--nude); }
+.sleep-bars span.b.good { background: var(--rose); }
+.sleep-bars small { font-size: .65rem; color: var(--muted); }
+.soon { display: flex; flex-wrap: wrap; gap: 6px; }
+
+/* formulários */
+form.fields { display: flex; flex-direction: column; gap: 14px; }
+label.f { display: flex; flex-direction: column; gap: 6px; font-size: .8rem; color: var(--muted); font-weight: 500; letter-spacing: .02em; }
+.f input, .f select, .f textarea { width: 100%; min-width: 0; border: 1px solid var(--line); background: var(--bg); border-radius: 14px; padding: 11px 14px; font-size: 1rem; color: var(--ink); }
+.f input:focus, .f select:focus, .f textarea:focus { outline: none; border-color: var(--rose); }
+.f-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.radio-seg { display: flex; background: var(--nude-soft); border-radius: 99px; padding: 4px; gap: 4px; }
+.radio-seg label { flex: 1; text-align: center; }
+.radio-seg input { position: absolute; opacity: 0; pointer-events: none; }
+.radio-seg span { display: block; padding: 8px 10px; border-radius: 99px; font-size: .88rem; color: var(--muted); cursor: pointer; }
+.radio-seg input:checked + span { background: var(--surface); color: var(--ink); box-shadow: var(--shadow); }
+.radio-seg input:focus-visible + span { outline: 2px solid var(--rose); }
+.wdays { display: flex; gap: 6px; flex-wrap: wrap; }
+.wdays label input { position: absolute; opacity: 0; pointer-events: none; }
+.wdays label span { display: grid; place-items: center; width: 38px; height: 38px; border-radius: 50%; background: var(--nude-soft); font-size: .8rem; color: var(--muted); cursor: pointer; }
+.wdays label input:checked + span { background: var(--rose); color: #fff; }
+
+/* sheet + diálogo */
+.overlay { position: fixed; inset: 0; background: rgba(40,28,26,.35); z-index: 50; display: flex; align-items: flex-end; justify-content: center; animation: fade .2s ease; }
+.sheet { background: var(--surface); width: 100%; max-width: 560px; max-height: 90vh; overflow-y: auto; border-radius: 26px 26px 0 0; padding: 10px 20px calc(24px + env(safe-area-inset-bottom, 0px)); display: flex; flex-direction: column; gap: 16px; animation: up .25s ease; }
+.sheet .grip { width: 40px; height: 4px; border-radius: 4px; background: var(--line); margin: 0 auto; }
+.sheet-head { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+.overlay.center { align-items: center; padding: 20px; }
+.dialog { background: var(--surface); border-radius: 24px; padding: 22px; max-width: 380px; width: 100%; display: flex; flex-direction: column; gap: 16px; animation: up .2s ease; }
+@keyframes fade { from { opacity: 0; } }
+@keyframes up { from { transform: translateY(24px); opacity: 0; } }
+
+.tabbar { position: fixed; left: 0; right: 0; bottom: 0; z-index: 30; background: color-mix(in srgb, var(--surface) 92%, transparent); backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px); border-top: 1px solid var(--line); padding: 6px max(10px, env(safe-area-inset-right, 0px)) calc(6px + env(safe-area-inset-bottom, 0px)) max(10px, env(safe-area-inset-left, 0px)); }
+.tabbar ul { list-style: none; margin: 0 auto; padding: 0; max-width: 520px; display: grid; grid-template-columns: repeat(5, 1fr); }
+.tabbar a { display: flex; flex-direction: column; align-items: center; gap: 3px; padding: 6px 0; color: var(--muted); text-decoration: none; font-size: .7rem; letter-spacing: .04em; }
+.tabbar a svg { width: 22px; height: 22px; }
+.tabbar a[aria-current="page"] { color: var(--rose-deep); }
+.tabbar a[aria-current="page"] svg { stroke-width: 1.8; }
+svg.i { fill: none; stroke: currentColor; stroke-width: 1.4; stroke-linecap: round; stroke-linejoin: round; }
+
+.banner { border-radius: 16px; padding: 12px 14px; background: color-mix(in srgb, var(--warn) 14%, var(--surface)); display: flex; align-items: center; gap: 10px; justify-content: space-between; flex-wrap: wrap; font-size: .88rem; }
+.toast { position: fixed; left: 50%; bottom: calc(var(--tabbar-h) + 24px + env(safe-area-inset-bottom, 0px)); transform: translateX(-50%) translateY(10px); background: var(--ink); color: var(--bg); padding: 10px 18px; border-radius: 99px; font-size: .88rem; opacity: 0; pointer-events: none; transition: .25s; z-index: 60; max-width: calc(100vw - 32px); text-align: center; }
+.toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+.onboard { text-align: center; align-items: center; }
+.onboard .mark { font-family: var(--font-display); font-size: 2.6rem; color: var(--rose); line-height: 1; }
+/* etapa 2 */
+.d-cycle { background: var(--bad); }
+.d-pred { background: transparent; box-shadow: inset 0 0 0 1px var(--bad); }
+.timer { font-variant-numeric: tabular-nums; font-weight: 500; }
+.big { font-family: var(--font-display); font-size: 2rem; font-weight: 500; line-height: 1; font-variant-numeric: tabular-nums; }
+.subj { display: flex; flex-direction: column; gap: 10px; padding: 14px; border-radius: 16px; background: var(--nude-soft); min-width: 0; }
+.subj-head { display: flex; align-items: center; gap: 10px; }
+.subj .list > li { border-top-color: color-mix(in srgb, var(--ink) 8%, transparent); }
+.subj .chip:not(.ok):not(.warn) { background: var(--surface); }
+.stars { color: var(--warn); letter-spacing: 1px; }
+.vision { display: grid; grid-template-columns: repeat(2, minmax(0,1fr)); gap: 10px; }
+.vision button { background: var(--nude-soft); border-radius: 16px; padding: 16px 14px; display: flex; flex-direction: column; gap: 8px; align-items: flex-start; text-align: left; min-height: 104px; min-width: 0; }
+.vision b { font-size: 1.6rem; font-weight: 400; line-height: 1; }
+.vision span { font-family: var(--font-display); font-size: 1.1rem; line-height: 1.2; overflow-wrap: anywhere; }
+.cycle-hero { background: var(--nude-soft); border-radius: var(--r); padding: 20px; display: flex; flex-direction: column; gap: 10px; }
+.cycle-hero b { font-family: var(--font-display); font-size: 2.2rem; font-weight: 500; line-height: 1.05; }
+.inline-add { display: flex; gap: 8px; }
+.inline-add input { flex: 1; min-width: 0; border: 1px solid var(--line); background: var(--bg); border-radius: 99px; padding: 10px 16px; font-size: 1rem; color: var(--ink); }
+.inline-add input:focus { outline: none; border-color: var(--rose); }
+.chips { display: flex; flex-wrap: wrap; gap: 6px; }
+button.chip { cursor: pointer; padding: 5px 11px; font-size: .8rem; }
+input[type=range] { accent-color: var(--rose); width: 100%; padding: 0; border: 0; background: transparent; }
+.seg.sub button { font-size: .8rem; padding: 5px 12px; }
+.seg.sub button[aria-pressed="true"] { background: var(--rose); border-color: var(--rose); color: #fff; }
+@media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation: none !important; transition: none !important; } }
+</style>
+</head>
+<body>
+
+<main id="view" aria-live="polite"></main>
+
+<nav class="tabbar" aria-label="Seções">
+  <ul>
+    <li><a href="#hoje" data-tab="hoje"><svg class="i" viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/><path d="M12 3v2M12 19v2M3 12h2M19 12h2M5.6 5.6l1.4 1.4M17 17l1.4 1.4M5.6 18.4 7 17M17 7l1.4-1.4"/></svg>Hoje</a></li>
+    <li><a href="#agenda" data-tab="agenda"><svg class="i" viewBox="0 0 24 24"><rect x="3.5" y="5" width="17" height="15" rx="3"/><path d="M3.5 10h17M8 3v4M16 3v4"/></svg>Agenda</a></li>
+    <li><a href="#financas" data-tab="financas"><svg class="i" viewBox="0 0 24 24"><rect x="3" y="6" width="18" height="13" rx="3"/><path d="M3 10h18M16 15h2"/></svg>Finanças</a></li>
+    <li><a href="#eu" data-tab="eu"><svg class="i" viewBox="0 0 24 24"><path d="M12 20s-7-4.4-7-10a4 4 0 0 1 7-2.6A4 4 0 0 1 19 10c0 5.6-7 10-7 10Z"/></svg>Eu</a></li>
+    <li><a href="#mais" data-tab="mais"><svg class="i" viewBox="0 0 24 24"><circle cx="6" cy="12" r="1.2"/><circle cx="12" cy="12" r="1.2"/><circle cx="18" cy="12" r="1.2"/></svg>Mais</a></li>
+  </ul>
+</nav>
+<div id="layer"></div>
+<div class="toast" id="toast" role="status"></div>
+<input type="file" id="importFile" accept=".json,application/json" hidden>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<script>
+(() => {
+'use strict';
+/* ---------- utilidades ---------- */
+const KEY = 'plannerRose.v1';
+const uid = () => Math.random().toString(36).slice(2, 9) + Date.now().toString(36).slice(-4);
+const pad = n => String(n).padStart(2, '0');
+const iso = d => `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
+const parse = s => { const [y, m, d] = s.split('-').map(Number); return new Date(y, m - 1, d || 1); };
+const today = () => iso(new Date());
+const addDays = (s, n) => { const d = parse(s); d.setDate(d.getDate() + n); return iso(d); };
+const addMonths = (s, n) => { const d = parse(s), day = d.getDate(); const t = new Date(d.getFullYear(), d.getMonth() + n, 1); const last = new Date(t.getFullYear(), t.getMonth() + 1, 0).getDate(); t.setDate(Math.min(day, last)); return iso(t); };
+const mKey = s => s.slice(0, 7);
+const mShift = (k, n) => mKey(addMonths(k + '-01', n));
+const daysBetween = (a, b) => Math.round((parse(b) - parse(a)) / 86400000);
+const BRL = new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' });
+const money = c => BRL.format((c || 0) / 100);
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+const fmtLong = s => parse(s).toLocaleDateString('pt-BR', { weekday: 'long', day: 'numeric', month: 'long' });
+const fmtShort = s => parse(s).toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' });
+const fmtMonth = k => { const s = parse(k + '-01').toLocaleDateString('pt-BR', { month: 'long', year: 'numeric' }); return s.charAt(0).toUpperCase() + s.slice(1); };
+const fmtMonthShort = k => parse(k + '-01').toLocaleDateString('pt-BR', { month: 'short' }).replace('.', '');
+const WD = ['D', 'S', 'T', 'Q', 'Q', 'S', 'S'];
+const WD_NAMES = ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb'];
+function parseMoney(s) {
+  s = String(s || '').trim().replace(/[R$\s]/g, '');
+  if (!s) return NaN;
+  if (s.includes(',')) s = s.replace(/\./g, '').replace(',', '.');
+  else if ((s.match(/\./g) || []).length > 1 || /\.\d{3}$/.test(s)) s = s.replace(/\./g, '');
+  const v = Number(s);
+  return isFinite(v) && v >= 0 ? Math.round(v * 100) : NaN;
+}
+const centsToInput = c => c ? (c / 100).toFixed(2).replace('.', ',') : '';
+const ICON = {
+  check: '<svg viewBox="0 0 24 24" fill="none" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5 10 17 19 7"/></svg>',
+  prev: '<svg class="i" viewBox="0 0 24 24"><path d="M15 5l-7 7 7 7"/></svg>',
+  next: '<svg class="i" viewBox="0 0 24 24"><path d="M9 5l7 7-7 7"/></svg>',
+  plus: '<svg class="i" viewBox="0 0 24 24" style="stroke-width:1.8"><path d="M12 5v14M5 12h14"/></svg>',
+  minus: '<svg class="i" viewBox="0 0 24 24" style="stroke-width:1.8"><path d="M5 12h14"/></svg>',
+  close: '<svg class="i" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6 6 18"/></svg>'
+};
+
+/* ---------- frases do dia ---------- */
+const QUOTES = [
+  'Um passo pequeno por dia ainda é um caminho inteiro.', 'Você não precisa dar conta de tudo hoje, só do próximo passo.',
+  'Organizar a rotina é uma forma de cuidar de si.', 'Constância vale mais que perfeição.', 'Hoje é um bom dia para começar devagar.',
+  'Seu ritmo é válido.', 'Descansar também faz parte do plano.', 'O que você rega, floresce.', 'Gentileza com você mesma primeiro.',
+  'Feito é melhor que perfeito.', 'Pequenos hábitos, grandes mudanças.', 'Respira. Uma coisa de cada vez.', 'Você já venceu dias mais difíceis que este.',
+  'Escolha o essencial e deixe o resto leve.', 'A disciplina de hoje é a liberdade de amanhã.', 'Faça hoje algo que a sua versão do futuro vai agradecer.',
+  'Calma também é produtividade.', 'O dinheiro bem cuidado compra tranquilidade.', 'Celebre os pequenos progressos.', 'Você merece a mesma paciência que dá aos outros.',
+  'Planejar é transformar sonho em agenda.', 'Menos pressa, mais presença.', 'Cada copo d\'água conta.', 'Uma página por dia vira um livro por mês.',
+  'Prioridade não é fazer tudo, é fazer o que importa.', 'Seja a pessoa que você gostaria de encontrar.', 'Dias bons são construídos aos poucos.',
+  'Não compare o seu capítulo um com o capítulo vinte de alguém.', 'O cuidado de hoje é a saúde de amanhã.', 'Leveza é uma escolha diária.',
+  'Seu esforço silencioso também conta.', 'Recomeçar é sempre permitido.', 'Organização é carinho com o seu tempo.', 'Faça com calma, mas faça.',
+  'Sonhos grandes cabem em metas pequenas.', 'Hoje: um pouco melhor que ontem.', 'Gratidão muda o tom do dia.', 'Você é a prioridade da sua própria agenda.',
+  'Estudar um pouco todo dia é um presente para você.', 'O piano não se aprende num dia, e tudo bem.', 'Guardar um pouco hoje é viajar amanhã.',
+  'Diga não ao que pesa e sim ao que acrescenta.', 'Uma mente organizada descansa melhor.', 'Faça uma pausa antes de ficar cansada.',
+  'Bons hábitos são votos para quem você quer ser.', 'Sua energia é preciosa, invista bem.', 'O progresso mora na repetição.', 'Você não está atrasada, está no seu tempo.',
+  'Tudo bem fazer o mínimo em dias difíceis.', 'Cuide do corpo; é o único lugar onde você mora.', 'Termine o dia com um obrigado.', 'Clareza vem de colocar no papel.',
+  'Seja firme nas metas e flexível no caminho.', 'Hoje é página em branco: escreva com carinho.', 'Coragem é começar mesmo com medo.', 'Tudo que é bem planejado fica mais leve.',
+  'Sorria para a pessoa no espelho.', 'Você constrói a rotina; não deixe que ela construa você.', 'Alegria também é compromisso.', 'Um dia de cada vez, sempre.'
+];
+const quoteFor = d => QUOTES[(Math.floor(parse(d).getTime() / 86400000) % QUOTES.length + QUOTES.length) % QUOTES.length];
+
+/* ---------- estado ---------- */
+const DEFAULT_CATS = [
+  ['moradia', 'Moradia', '🏠', 'despesa'], ['mercado', 'Mercado', '🛒', 'despesa'], ['transporte', 'Transporte', '🚗', 'despesa'],
+  ['saude', 'Saúde', '🩺', 'despesa'], ['lazer', 'Lazer', '🎈', 'despesa'], ['educacao', 'Educação', '📚', 'despesa'],
+  ['beleza', 'Beleza', '💄', 'despesa'], ['assinaturas', 'Assinaturas', '📺', 'despesa'], ['outros', 'Outros', '✨', 'despesa'],
+  ['salario', 'Salário', '💼', 'receita'], ['extra', 'Renda extra', '🌱', 'receita'], ['outrasr', 'Outras receitas', '💰', 'receita']
+].map(([id, name, emoji, type]) => ({ id, name, emoji, type }));
+function defaults() {
+  return {
+    version: 1,
+    settings: { name: '', theme: 'auto', waterGoal: 8, lastBackup: null, onboarded: false, sample: false, createdAt: today() },
+    tasks: [], events: [], categories: DEFAULT_CATS.map(c => ({ ...c })), transactions: [], budgets: {},
+    bills: [], cards: [], savings: [],
+    habits: [{ id: 'h1', name: 'Meditar 5 minutos', emoji: '🧘‍♀️' }, { id: 'h2', name: 'Tomar vitaminas', emoji: '💊' }, { id: 'h3', name: 'Alongar', emoji: '🤸‍♀️' }],
+    habitLog: {}, water: {}, sleep: {}, mood: {},
+    study: {
+      subjects: [{ id: 'piano', name: 'Piano', emoji: '🎹', goal: 180 }, { id: 'ingles', name: 'Inglês', emoji: '🗣️', goal: 180 }, { id: 'cursos', name: 'Cursos do trabalho', emoji: '💼', goal: 120 }],
+      sessions: [], items: [], courses: [], running: null
+    },
+    books: [], readingGoal: 12, workouts: [], workoutGoal: 4, media: [],
+    skincare: {
+      am: [{ id: 's1', name: 'Limpeza' }, { id: 's2', name: 'Vitamina C' }, { id: 's3', name: 'Hidratante' }, { id: 's4', name: 'Protetor solar' }],
+      pm: [{ id: 's5', name: 'Demaquilante' }, { id: 's6', name: 'Limpeza' }, { id: 's7', name: 'Sérum' }, { id: 's8', name: 'Hidratante' }]
+    },
+    skinLog: {}, journal: {}, goals: [], vision: [], periods: [],
+    shopping: [], frequent: { mercado: ['Leite', 'Ovos', 'Pão', 'Frutas', 'Café', 'Iogurte'], farmacia: ['Protetor solar', 'Vitaminas', 'Absorvente'] }
+  };
+}
+function migrate(o) {
+  const d = defaults();
+  if (!o || typeof o !== 'object') return d;
+  const s = { ...d };
+  for (const k of Object.keys(d)) {
+    const dv = d[k], ov = o[k];
+    if (ov === undefined || ov === null) continue;
+    if (Array.isArray(dv)) s[k] = Array.isArray(ov) ? ov : dv;
+    else if (dv && typeof dv === 'object') s[k] = typeof ov === 'object' && !Array.isArray(ov) ? { ...dv, ...ov } : dv;
+    else s[k] = typeof ov === typeof dv ? ov : dv;
+  }
+  s.version = 2;
+  return s;
+}
+let S;
+try { S = migrate(JSON.parse(localStorage.getItem(KEY) || 'null')); } catch (e) { S = defaults(); }
+function save() { try { localStorage.setItem(KEY, JSON.stringify(S)); } catch (e) { toast('Não consegui salvar neste navegador. Faça um backup.'); } }
+
+const ui = { tab: 'hoje', calMonth: mKey(today()), calDay: today(), finMonth: mKey(today()), finTab: 'resumo',
+  euTab: 'bem', hobTab: 'leitura', mediaTab: 'quero', goalScope: 'mes', journalDate: today(), maisTab: 'compras', shopList: 'mercado' };
+
+/* ---------- regras: tarefas ---------- */
+function taskStart(t) { return t.date || t.created || today(); }
+function occurs(t, d) {
+  const r = t.repeat || 'none';
+  if (r === 'none') return t.date === d;
+  if (d < taskStart(t)) return false;
+  if (r === 'daily') return true;
+  if (r === 'weekdays') return (t.days || []).includes(parse(d).getDay());
+  if (r === 'monthly') return parse(d).getDate() === parse(taskStart(t)).getDate();
+  return false;
+}
+const isDone = (t, d) => (t.repeat || 'none') === 'none' ? (t.doneDates || []).length > 0 : (t.doneDates || []).includes(d);
+const PRI = { alta: 0, media: 1, baixa: 2 };
+const byPri = (a, b) => (PRI[a.priority] ?? 1) - (PRI[b.priority] ?? 1);
+function tasksForDay(d) {
+  const list = S.tasks.filter(t => occurs(t, d));
+  if (d === today()) {
+    S.tasks.forEach(t => {
+      if ((t.repeat || 'none') !== 'none' || list.includes(t)) return;
+      if (!t.date && (!isDone(t, d) || (t.doneDates || []).includes(d))) list.push(t);
+      else if (t.date && t.date < d && !isDone(t, d)) list.push(t);
+    });
+  }
+  return list.sort(byPri);
+}
+const repeatLabel = t => ({ none: '', daily: 'todo dia', weekdays: (t.days || []).sort().map(i => WD_NAMES[i]).join(', '), monthly: 'todo mês' }[t.repeat || 'none']);
+
+/* ---------- regras: finanças ---------- */
+const cat = id => S.categories.find(c => c.id === id) || { id, name: 'Sem categoria', emoji: '·', type: 'despesa' };
+const txMonth = k => S.transactions.filter(t => mKey(t.date) === k);
+const sum = (arr, f = x => x.amount) => arr.reduce((a, x) => a + (f(x) || 0), 0);
+function monthTotals(k) {
+  const tx = txMonth(k);
+  const inc = sum(tx.filter(t => t.type === 'receita')), out = sum(tx.filter(t => t.type === 'despesa'));
+  return { inc, out, bal: inc - out };
+}
+function spentByCat(k) {
+  const m = {};
+  txMonth(k).filter(t => t.type === 'despesa').forEach(t => { m[t.catId] = (m[t.catId] || 0) + t.amount; });
+  return m;
+}
+function budgetState(spent, budget) { if (!budget) return ''; const p = spent / budget; return p >= 1 ? 'bad' : p >= .8 ? 'warn' : 'ok'; }
+// fatura: compra no dia do fechamento ou depois cai na fatura do mês seguinte
+function invoiceKey(tx, card) { const d = parse(tx.date); const k = mKey(tx.date); return d.getDate() >= card.closeDay ? mShift(k, 1) : k; }
+function invoiceDue(card, key) { const due = card.dueDay > card.closeDay ? key : mShift(key, 1); const [y, m] = due.split('-').map(Number); const last = new Date(y, m, 0).getDate(); return `${due}-${pad(Math.min(card.dueDay, last))}`; }
+function invoiceTx(card, key) { return S.transactions.filter(t => t.method === 'cartao' && t.cardId === card.id && invoiceKey(t, card) === key); }
+function currentInvoiceKey(card) { const d = new Date(); const k = mKey(today()); return d.getDate() >= card.closeDay ? mShift(k, 1) : k; }
+function billsDue(d) { return S.bills.filter(b => !b.paidOn && b.due === d); }
+function invoicesDue(d) {
+  const out = [];
+  S.cards.forEach(c => { for (let n = -2; n <= 2; n++) { const key = mShift(mKey(d), n); if (invoiceDue(c, key) === d) { const tot = sum(invoiceTx(c, key)); if (tot > 0) out.push({ card: c, key, total: tot }); } } });
+  return out;
+}
+
+/* ---------- regras: hábitos ---------- */
+function habitDone(hid, d) { return (S.habitLog[d] || []).includes(hid); }
+function streak(hid) {
+  let d = today(), n = 0;
+  if (!habitDone(hid, d)) d = addDays(d, -1);
+  while (habitDone(hid, d)) { n++; d = addDays(d, -1); }
+  return n;
+}
+function sleepMinutes(e) {
+  if (!e || !e.bed || !e.wake) return null;
+  const [bh, bm] = e.bed.split(':').map(Number), [wh, wm] = e.wake.split(':').map(Number);
+  let m = (wh * 60 + wm) - (bh * 60 + bm); if (m <= 0) m += 1440; return m;
+}
+const hm = m => m < 60 ? `${m} min` : `${Math.floor(m / 60)}h${m % 60 ? pad(m % 60) : ''}`;
+const MOODS = [['😄', 'Ótimo'], ['🙂', 'Bem'], ['😐', 'Neutro'], ['😔', 'Pra baixo'], ['😣', 'Difícil']];
+
+/* ---------- componentes ---------- */
+function taskItem(t, d) {
+  const done = isDone(t, d), late = t.repeat === 'none' && t.date && t.date < today() && !done;
+  const meta = [repeatLabel(t), late ? '' : (t.repeat === 'none' && t.date && d !== t.date ? fmtShort(t.date) : '')].filter(Boolean).join(' · ');
+  return `<li class="${done ? 'done' : ''}">
+    <button class="check" data-act="toggleTask" data-id="${t.id}" data-date="${d}" aria-pressed="${done}" aria-label="Concluir ${esc(t.title)}">${ICON.check}</button>
+    <button class="row-main" data-act="editTask" data-id="${t.id}"><span class="t"><i class="prio ${t.priority || 'media'}"></i>${esc(t.title)}</span>${meta || late ? `<small>${late ? `<span class="chip bad">atrasada · ${fmtShort(t.date)}</span> ` : ''}${esc(meta)}</small>` : ''}</button>
+  </li>`;
+}
+function eventItem(e) {
+  return `<li><span class="emo num" style="font-size:.78rem">${e.time ? esc(e.time) : '—'}</span>
+    <button class="row-main" data-act="editEvent" data-id="${e.id}"><span class="t">${esc(e.title)}</span>${e.note ? `<small>${esc(e.note)}</small>` : ''}</button></li>`;
+}
+function dueChip(due) {
+  const n = daysBetween(today(), due);
+  if (n < 0) return `<span class="chip bad">atrasada ${-n}d</span>`;
+  if (n === 0) return `<span class="chip warn">vence hoje</span>`;
+  if (n <= 3) return `<span class="chip warn">em ${n}d</span>`;
+  return `<span class="chip">${fmtShort(due)}</span>`;
+}
+const billChip = b => dueChip(b.due);
+function billItem(b) {
+  const c = cat(b.catId);
+  return `<li><span class="emo">${c.emoji}</span>
+    <button class="row-main" data-act="editBill" data-id="${b.id}"><span class="t">${esc(b.title)}</span><small>${money(b.amount)}${b.repeat === 'mensal' ? ' · mensal' : ''}</small></button>
+    <span class="row-end" style="display:flex;flex-direction:column;align-items:flex-end;gap:6px">${billChip(b)}<button class="btn sm" data-act="payBill" data-id="${b.id}">Pagar</button></span></li>`;
+}
+function txItem(t) {
+  const c = cat(t.catId), card = t.method === 'cartao' ? S.cards.find(x => x.id === t.cardId) : null;
+  return `<li><span class="emo">${c.emoji}</span>
+    <button class="row-main" data-act="editTx" data-id="${t.id}"><span class="t">${esc(t.desc || c.name)}</span><small>${esc(c.name)}${card ? ' · ' + esc(card.name) : ''}</small></button>
+    <span class="row-end ${t.type === 'receita' ? 'pos' : ''}">${t.type === 'receita' ? '+' : '−'} ${money(t.amount)}</span></li>`;
+}
+const bar = (pct, cls = '') => `<div class="bar ${cls}"><i style="width:${Math.max(0, Math.min(100, pct)).toFixed(1)}%"></i></div>`;
+
+/* ---------- telas ---------- */
+const views = {};
+views.hoje = () => {
+  const d = today(), h = new Date().getHours();
+  const greet = h < 12 ? 'Bom dia' : h < 18 ? 'Boa tarde' : 'Boa noite';
+  const tasks = tasksForDay(d), doneN = tasks.filter(t => isDone(t, d)).length;
+  const water = S.water[d] || 0, goal = S.settings.waterGoal || 8;
+  const habN = S.habits.filter(x => habitDone(x.id, d)).length;
+  const spentToday = sum(S.transactions.filter(t => t.date === d && t.type === 'despesa'));
+  const events = S.events.filter(e => e.date === d).sort((a, b) => (a.time || '').localeCompare(b.time || ''));
+  const bills = S.bills.filter(b => !b.paidOn && b.due <= addDays(d, 7)).sort((a, b) => a.due.localeCompare(b.due));
+  const invs = []; for (let i = 0; i <= 7; i++) invs.push(...invoicesDue(addDays(d, i)));
+  const mood = S.mood[d];
+  const sinceBackup = daysBetween(S.settings.lastBackup || S.settings.createdAt || d, d);
+  return `
+  ${S.settings.sample ? `<div class="banner"><span>Você está vendo dados de exemplo.</span><button class="btn sm ghost" data-act="clearSample">Começar do zero</button></div>` : ''}
+  ${!S.settings.sample && sinceBackup > 30 ? `<div class="banner"><span>Seu último backup foi há mais de 30 dias.</span><button class="btn sm ghost" data-act="exportData">Fazer backup</button></div>` : ''}
+  ${S.study.running ? `<div class="banner" style="background:var(--nude-soft)"><span>${esc(subj(S.study.running.subjectId).emoji)} ${esc(subj(S.study.running.subjectId).name)} · <span class="timer" data-timer>${timerText()}</span></span><button class="btn sm" data-act="timerStop">Parar</button></div>` : ''}
+  <header class="hello"><p class="eyebrow">${esc(fmtLong(d))}</p><h1>${greet}${S.settings.name ? `, <em>${esc(S.settings.name)}</em>` : ''}</h1></header>
+  <figure class="quote"><span aria-hidden="true">“</span><blockquote>${esc(quoteFor(d))}</blockquote></figure>
+  <section class="stats" aria-label="Resumo do dia">
+    <a class="stat" href="#agenda" style="color:inherit;text-decoration:none"><span class="eyebrow">Tarefas</span><b>${doneN}<span class="muted" style="font-size:1rem">/${tasks.length}</span></b>${bar(tasks.length ? doneN / tasks.length * 100 : 0)}</a>
+    <button class="stat" data-act="water" data-n="1" aria-label="Adicionar um copo de água"><span class="eyebrow">Água</span><b>${water}<span class="muted" style="font-size:1rem">/${goal} copos</span></b>${bar(water / goal * 100, water >= goal ? 'ok' : '')}</button>
+    <a class="stat" href="#eu" style="color:inherit;text-decoration:none"><span class="eyebrow">Hábitos</span><b>${habN}<span class="muted" style="font-size:1rem">/${S.habits.length}</span></b>${bar(S.habits.length ? habN / S.habits.length * 100 : 0)}</a>
+    <a class="stat" href="#financas" style="color:inherit;text-decoration:none"><span class="eyebrow">Gastos hoje</span><b style="font-size:1.45rem">${money(spentToday)}</b><span class="small muted">saldo do mês ${money(monthTotals(mKey(d)).bal)}</span></a>
+  </section>
+  <section class="card">
+    <div class="sec-head"><h2>Tarefas de hoje</h2><button class="link" data-act="newTask" data-date="${d}">+ Nova</button></div>
+    ${tasks.length ? `<ul class="list">${tasks.map(t => taskItem(t, d)).join('')}</ul>` : `<p class="empty">Nenhuma tarefa para hoje. Toque em “+ Nova” para planejar o dia.</p>`}
+  </section>
+  <section class="card">
+    <div class="sec-head"><h2>Compromissos</h2><button class="link" data-act="newEvent" data-date="${d}">+ Evento</button></div>
+    ${(() => { const cs = S.study.courses.filter(c => !c.done && c.deadline && c.deadline >= d && c.deadline <= addDays(d, 7));
+      return events.length || cs.length ? `<ul class="list">${events.map(eventItem).join('')}${cs.map(c => `<li><span class="emo">🎓</span><button class="row-main" data-act="editCourse" data-id="${c.id}"><span class="t">${esc(c.title)}</span><small>prazo do curso</small></button><span class="row-end">${dueChip(c.deadline)}</span></li>`).join('')}</ul>` : `<p class="empty">Agenda livre hoje.</p>`; })()}
+  </section>
+  ${bills.length || invs.length ? `<section class="card">
+    <div class="sec-head"><h2>Contas da semana</h2><a class="link" href="#financas" data-fin="contas">Ver todas</a></div>
+    <ul class="list">${bills.map(billItem).join('')}${invs.map(v => `<li><span class="emo">💳</span><div class="row-main"><span class="t">Fatura ${esc(v.card.name)}</span><small>vence ${fmtShort(invoiceDue(v.card, v.key))}</small></div><span class="row-end">${money(v.total)}</span></li>`).join('')}</ul>
+  </section>` : ''}
+  <section class="card">
+    <div class="sec-head"><h2>Como você está?</h2>${mood ? `<span class="small muted">${esc((MOODS.find(m => m[0] === mood) || [, ''])[1])}</span>` : ''}</div>
+    <div class="moods">${MOODS.map(([e, l]) => `<button data-act="mood" data-m="${e}" aria-pressed="${mood === e}" aria-label="${l}">${e}</button>`).join('')}</div>
+  </section>`;
+};
+
+views.agenda = () => {
+  const k = ui.calMonth, first = parse(k + '-01'), start = addDays(k + '-01', -first.getDay());
+  const t = today(), sel = ui.calDay, cs = cycleStats();
+  let cells = '';
+  for (let i = 0; i < 42; i++) {
+    const d = addDays(start, i);
+    const hasT = S.tasks.some(x => x.repeat !== 'daily' && occurs(x, d)), hasE = S.events.some(e => e.date === d) || S.study.courses.some(c => !c.done && c.deadline === d), pk = periodKind(d, cs), hasB = billsDue(d).length || invoicesDue(d).length;
+    cells += `<button class="day ${mKey(d) !== k ? 'out' : ''} ${d === t ? 'today' : ''} ${d === sel ? 'sel' : ''}" data-act="pickDay" data-date="${d}" aria-label="${fmtLong(d)}" aria-pressed="${d === sel}">${parse(d).getDate()}<span class="dots">${hasT ? '<i class="d-task"></i>' : ''}${hasE ? '<i class="d-event"></i>' : ''}${hasB ? '<i class="d-bill"></i>' : ''}${pk === 'real' ? '<i class="d-cycle"></i>' : pk === 'pred' ? '<i class="d-pred"></i>' : ''}</span></button>`;
+  }
+  const tasks = S.tasks.filter(x => occurs(x, sel)).sort(byPri), events = S.events.filter(e => e.date === sel).sort((a, b) => (a.time || '').localeCompare(b.time || ''));
+  const bills = billsDue(sel), invs = invoicesDue(sel), courses = S.study.courses.filter(c => !c.done && c.deadline === sel), pkSel = periodKind(sel, cs);
+  const undated = S.tasks.filter(x => (x.repeat || 'none') === 'none' && !x.date && !isDone(x, sel));
+  return `
+  <header class="hello"><p class="eyebrow">Agenda</p><h1>Seus dias</h1></header>
+  <section class="card">
+    <div class="month-nav"><button class="icon-btn" data-act="calMonth" data-n="-1" aria-label="Mês anterior">${ICON.prev}</button><h2>${fmtMonth(k)}</h2><button class="icon-btn" data-act="calMonth" data-n="1" aria-label="Próximo mês">${ICON.next}</button></div>
+    <div class="cal">${WD.map(w => `<div class="wd">${w}</div>`).join('')}${cells}</div>
+    <div class="legend"><span><i class="dots"><i class="d-task"></i></i>tarefas (exceto diárias)</span><span><i class="dots"><i class="d-event"></i></i>eventos</span><span><i class="dots"><i class="d-bill"></i></i>contas e faturas</span><span><i class="dots"><i class="d-cycle"></i></i>menstruação</span><span><i class="dots"><i class="d-pred"></i></i>prevista</span></div>
+  </section>
+  <section class="card">
+    <div class="sec-head"><h2>${esc(fmtLong(sel).replace(/^./, c => c.toUpperCase()))}</h2></div>
+    <div class="btn-row"><button class="btn sm" data-act="newTask" data-date="${sel}">+ Tarefa</button><button class="btn sm ghost" data-act="newEvent" data-date="${sel}">+ Evento</button>${sel !== t ? `<button class="btn sm line" data-act="pickDay" data-date="${t}">Ir para hoje</button>` : ''}</div>
+    ${events.length ? `<p class="eyebrow">Eventos</p><ul class="list">${events.map(eventItem).join('')}</ul>` : ''}
+    ${tasks.length ? `<p class="eyebrow">Tarefas</p><ul class="list">${tasks.map(x => taskItem(x, sel)).join('')}</ul>` : ''}
+    ${bills.length || invs.length ? `<p class="eyebrow">Vencimentos</p><ul class="list">${bills.map(billItem).join('')}${invs.map(v => `<li><span class="emo">💳</span><div class="row-main"><span class="t">Fatura ${esc(v.card.name)}</span><small>${fmtMonth(v.key)}</small></div><span class="row-end">${money(v.total)}</span></li>`).join('')}</ul>` : ''}
+    ${courses.length ? `<p class="eyebrow">Prazos de cursos</p><ul class="list">${courses.map(c => `<li><span class="emo">🎓</span><button class="row-main" data-act="editCourse" data-id="${c.id}"><span class="t">${esc(c.title)}</span></button></li>`).join('')}</ul>` : ''}
+    ${pkSel ? `<p><span class="chip ${pkSel === 'real' ? 'bad' : ''}">🌸 ${pkSel === 'real' ? 'menstruação' : 'menstruação prevista'}</span></p>` : ''}
+    ${!events.length && !tasks.length && !bills.length && !invs.length && !courses.length && !pkSel ? `<p class="empty">Nada marcado neste dia.</p>` : ''}
+  </section>
+  ${undated.length ? `<section class="card"><div class="sec-head"><h2>Sem data</h2></div><ul class="list">${undated.sort(byPri).map(x => taskItem(x, t)).join('')}</ul></section>` : ''}`;
+};
+
+const FIN_TABS = [['resumo', 'Resumo'], ['lanc', 'Lançamentos'], ['orc', 'Orçamento'], ['contas', 'Contas a pagar'], ['cartoes', 'Cartões'], ['reservas', 'Reservas']];
+views.financas = () => {
+  const k = ui.finMonth;
+  const body = ({ resumo: finResumo, lanc: finLanc, orc: finOrc, contas: finContas, cartoes: finCartoes, reservas: finReservas })[ui.finTab](k);
+  return `
+  <header class="hello"><p class="eyebrow">Finanças</p><h1>Seu dinheiro</h1></header>
+  <div class="month-nav"><button class="icon-btn" data-act="finMonth" data-n="-1" aria-label="Mês anterior">${ICON.prev}</button><h2>${fmtMonth(k)}</h2><button class="icon-btn" data-act="finMonth" data-n="1" aria-label="Próximo mês">${ICON.next}</button></div>
+  <div class="seg" role="tablist">${FIN_TABS.map(([id, l]) => `<button data-act="finTab" data-t="${id}" aria-pressed="${ui.finTab === id}">${l}</button>`).join('')}</div>
+  ${body}
+  <button class="fab" data-act="newTx" aria-label="Novo lançamento">${ICON.plus}</button>`;
+};
+function finResumo(k) {
+  const { inc, out, bal } = monthTotals(k), spent = spentByCat(k);
+  const alerts = Object.entries(S.budgets).filter(([c, b]) => b && (spent[c] || 0) / b >= .8).map(([c, b]) => ({ c: cat(c), s: spent[c] || 0, b }));
+  const cats = Object.entries(spent).sort((a, b) => b[1] - a[1]);
+  return `
+  <section class="balance"><span class="eyebrow">Saldo de ${fmtMonth(k).split(' ')[0]}</span><b class="${bal < 0 ? 'neg' : ''}">${money(bal)}</b>
+    <div class="split"><div><span class="eyebrow">Receitas</span><span>+ ${money(inc)}</span></div><div><span class="eyebrow">Despesas</span><span>− ${money(out)}</span></div></div></section>
+  ${alerts.length ? `<section class="card"><div class="sec-head"><h3>Atenção ao orçamento</h3></div><ul class="list">${alerts.map(a => `<li><span class="emo">${a.c.emoji}</span><div class="row-main"><span class="t">${esc(a.c.name)}</span>${bar(a.s / a.b * 100, budgetState(a.s, a.b))}</div><span class="row-end"><span class="chip ${budgetState(a.s, a.b)}">${Math.round(a.s / a.b * 100)}%</span></span></li>`).join('')}</ul></section>` : ''}
+  <section class="card"><div class="sec-head"><h3>Despesas por categoria</h3></div>
+    ${cats.length ? `<div class="chart-box donut"><canvas id="chDonut" aria-label="Gráfico de despesas por categoria" role="img"></canvas></div>
+    <ul class="leg-list">${cats.map(([c, v], i) => `<li><i style="background:${PALETTE[i % PALETTE.length]}"></i><span>${cat(c).emoji} ${esc(cat(c).name)}</span><span class="num">${money(v)}</span><span class="muted small num" style="width:3em;text-align:right">${Math.round(v / out * 100)}%</span></li>`).join('')}</ul>`
+    : `<p class="empty">Sem despesas neste mês. Use o botão + para lançar.</p>`}
+  </section>
+  <section class="card"><div class="sec-head"><h3>Últimos 6 meses</h3><span class="legend"><span><i class="prio" style="background:var(--ok)"></i>receitas</span><span><i class="prio" style="background:var(--rose)"></i>despesas</span></span></div>
+    <div class="chart-box bars"><canvas id="chBars" aria-label="Receitas e despesas dos últimos 6 meses" role="img"></canvas></div></section>`;
+}
+function finLanc(k) {
+  const tx = txMonth(k).sort((a, b) => b.date.localeCompare(a.date));
+  if (!tx.length) return `<section class="card"><p class="empty">Nenhum lançamento em ${fmtMonth(k)}. Toque no + para adicionar.</p></section>`;
+  const groups = {}; tx.forEach(t => (groups[t.date] = groups[t.date] || []).push(t));
+  return Object.entries(groups).map(([d, list]) => `<section class="card"><div class="sec-head"><span class="eyebrow">${esc(fmtLong(d))}</span><span class="small muted num">${money(sum(list.filter(t => t.type === 'despesa')))}</span></div><ul class="list">${list.map(txItem).join('')}</ul></section>`).join('');
+}
+function finOrc(k) {
+  const spent = spentByCat(k), cats = S.categories.filter(c => c.type === 'despesa');
+  const totB = sum(Object.values(S.budgets), x => x), totS = sum(cats, c => S.budgets[c.id] ? spent[c.id] || 0 : 0);
+  return `<section class="card"><div class="sec-head"><h3>Orçamento do mês</h3><span class="num small muted">${money(totS)} de ${money(totB)}</span></div>${bar(totB ? totS / totB * 100 : 0, budgetState(totS, totB))}
+    <p class="small muted">Toque numa categoria para definir o limite mensal. O alerta aparece em 80% e em 100%.</p></section>
+  <section class="card"><ul class="list">${cats.map(c => { const s = spent[c.id] || 0, b = S.budgets[c.id] || 0, st = budgetState(s, b); return `<li><span class="emo">${c.emoji}</span>
+    <button class="row-main" data-act="setBudget" data-id="${c.id}"><span class="t">${esc(c.name)}</span><small class="num">${money(s)}${b ? ` de ${money(b)}` : ' · sem limite'}</small>${b ? bar(s / b * 100, st) : ''}</button>
+    ${b ? `<span class="chip ${st}">${Math.round(s / b * 100)}%</span>` : ''}</li>`; }).join('')}</ul></section>`;
+}
+function finContas(k) {
+  const pend = S.bills.filter(b => !b.paidOn).sort((a, b) => a.due.localeCompare(b.due));
+  const paid = S.bills.filter(b => b.paidOn && mKey(b.paidOn) === k);
+  return `<section class="card"><div class="sec-head"><h3>A pagar</h3><button class="link" data-act="newBill">+ Nova conta</button></div>
+    ${pend.length ? `<ul class="list">${pend.map(billItem).join('')}</ul><p class="small muted">Total pendente: <span class="num">${money(sum(pend))}</span>. Ao pagar, a despesa é lançada e, se for mensal, a próxima conta é criada.</p>` : `<p class="empty">Nenhuma conta pendente.</p>`}</section>
+  ${paid.length ? `<section class="card"><div class="sec-head"><h3>Pagas em ${fmtMonth(k).split(' ')[0]}</h3></div><ul class="list">${paid.map(b => `<li><span class="emo">${cat(b.catId).emoji}</span><div class="row-main"><span class="t">${esc(b.title)}</span><small>paga em ${fmtShort(b.paidOn)}</small></div><span class="row-end"><span class="chip ok">paga</span> <span class="num">${money(b.amount)}</span></span></li>`).join('')}</ul></section>` : ''}`;
+}
+function finCartoes() {
+  if (!S.cards.length) return `<section class="card"><p class="empty">Cadastre seu cartão de crédito para acompanhar a fatura. As compras lançadas no cartão entram na fatura certa conforme o dia de fechamento.</p><button class="btn" data-act="newCard">+ Novo cartão</button></section>`;
+  return S.cards.map(c => {
+    const key = currentInvoiceKey(c), tx = invoiceTx(c, key), tot = sum(tx), nextTot = sum(invoiceTx(c, mShift(key, 1)));
+    const used = S.transactions.filter(t => t.method === 'cartao' && t.cardId === c.id && invoiceKey(t, c) >= key);
+    const usedTot = sum(used);
+    return `<section class="card">
+      <div class="card-plastic"><div class="sec-head"><span class="eyebrow">${esc(c.name)} · fatura atual</span><button data-act="editCard" data-id="${c.id}" style="color:#fff;font-size:.8rem">editar</button></div>
+        <b>${money(tot)}</b><span class="small">fecha dia ${c.closeDay} · vence ${fmtShort(invoiceDue(c, key))}</span>
+        ${c.limit ? `${bar(usedTot / c.limit * 100)}<span class="small">${money(usedTot)} usados de ${money(c.limit)}</span>` : ''}</div>
+      <p class="small muted">Próxima fatura até agora: <span class="num">${money(nextTot)}</span></p>
+      ${tx.length ? `<ul class="list">${tx.sort((a, b) => b.date.localeCompare(a.date)).map(txItem).join('')}</ul>` : `<p class="empty">Nenhuma compra nesta fatura.</p>`}
+    </section>`;
+  }).join('') + `<button class="btn ghost block" data-act="newCard">+ Novo cartão</button>`;
+}
+function finReservas() {
+  return `<section class="card"><div class="sec-head"><h3>Caixinhas</h3><button class="link" data-act="newSaving">+ Nova</button></div>
+  ${S.savings.length ? `<ul class="list">${S.savings.map(s => `<li style="flex-wrap:wrap"><span class="emo">${esc(s.emoji || '🌷')}</span>
+    <button class="row-main" data-act="editSaving" data-id="${s.id}"><span class="t">${esc(s.name)}</span><small class="num">${money(s.saved)}${s.goal ? ` de ${money(s.goal)}` : ''}</small>${s.goal ? bar(s.saved / s.goal * 100, s.saved >= s.goal ? 'ok' : '') : ''}</button>
+    <span class="row-end btn-row"><button class="btn sm" data-act="saveMove" data-id="${s.id}" data-dir="1">Guardar</button><button class="btn sm ghost" data-act="saveMove" data-id="${s.id}" data-dir="-1">Retirar</button></span></li>`).join('')}</ul>
+    <p class="small muted">Total guardado: <span class="num">${money(sum(S.savings, s => s.saved))}</span></p>`
+    : `<p class="empty">Crie caixinhas para seus objetivos, como viagem ou reserva de emergência.</p>`}</section>`;
+}
+
+function euBem() {
+  const d = today(), water = S.water[d] || 0, goal = S.settings.waterGoal || 8;
+  const last7 = Array.from({ length: 7 }, (_, i) => addDays(d, i - 6));
+  const sl = last7.map(x => ({ d: x, m: sleepMinutes(S.sleep[x]) }));
+  const valid = sl.filter(x => x.m), avg = valid.length ? Math.round(sum(valid, x => x.m) / valid.length) : 0;
+  const maxM = Math.max(600, ...valid.map(x => x.m));
+  const se = S.sleep[d] || {};
+  const k = mKey(d), first = parse(k + '-01'), dim = new Date(first.getFullYear(), first.getMonth() + 1, 0).getDate();
+  let map = WD.map(w => `<div class="blank"><small>${w}</small></div>`).join('') + '<div class="blank"></div>'.repeat(first.getDay());
+  for (let i = 1; i <= dim; i++) { const dd = `${k}-${pad(i)}`; map += `<div title="${fmtShort(dd)}">${S.mood[dd] || `<small>${i}</small>`}</div>`; }
+  return `
+  <section class="card">
+    <div class="sec-head"><h2>Água</h2><span class="small muted">meta ${goal} copos</span></div>
+    <div class="water"><button class="icon-btn" data-act="water" data-n="-1" aria-label="Remover um copo">${ICON.minus}</button><b>${water} <span class="muted" style="font-size:1rem">copos · ${(water * 0.25).toLocaleString('pt-BR')} L</span></b><button class="icon-btn" data-act="water" data-n="1" aria-label="Adicionar um copo" style="background:var(--rose);color:#fff">${ICON.plus}</button></div>
+    <div class="cups" aria-hidden="true">${Array.from({ length: Math.max(goal, water) }, (_, i) => `<span class="cup ${i < water ? 'full' : ''}"></span>`).join('')}</div>
+  </section>
+  <section class="card">
+    <div class="sec-head"><h2>Hábitos</h2><button class="link" data-act="newHabit">+ Hábito</button></div>
+    ${S.habits.length ? `<ul class="list">${S.habits.map(hb => { const on = habitDone(hb.id, d), st = streak(hb.id); return `<li class="${on ? 'done' : ''}">
+      <button class="check" data-act="toggleHabit" data-id="${hb.id}" aria-pressed="${on}" aria-label="Marcar ${esc(hb.name)}">${ICON.check}</button>
+      <button class="row-main" data-act="editHabit" data-id="${hb.id}"><span class="t" style="text-decoration:none;color:var(--ink)">${esc(hb.emoji || '')} ${esc(hb.name)}</span><span class="week" aria-label="últimos 7 dias">${last7.map(x => `<i class="${habitDone(hb.id, x) ? 'on' : ''}"></i>`).join('')}</span></button>
+      <span class="row-end small ${st ? '' : 'muted'}">${st ? `🔥 ${st} ${st === 1 ? 'dia' : 'dias'}` : '—'}</span></li>`; }).join('')}</ul>` : `<p class="empty">Crie hábitos como meditar, estudar ou tomar vitamina.</p>`}
+  </section>
+  <section class="card">
+    <div class="sec-head"><h2>Sono</h2><span class="small muted">média 7 dias: <b class="num" style="color:var(--ink)">${avg ? hm(avg) : '—'}</b></span></div>
+    <form class="f-row" id="sleepForm" style="align-items:end">
+      <label class="f">Dormi às<input type="time" name="bed" id="sleepBed" value="${esc(se.bed || '')}" required></label>
+      <label class="f">Acordei às<input type="time" name="wake" id="sleepWake" value="${esc(se.wake || '')}" required></label>
+      <button class="btn" type="submit" style="grid-column:1/-1">${se.bed ? 'Atualizar noite de hoje' : 'Registrar noite de hoje'}</button>
+    </form>
+    <div class="sleep-bars" aria-label="Horas de sono nos últimos 7 dias">${sl.map(x => `<div><span class="b ${x.m >= 420 ? 'good' : ''}" style="height:${x.m ? Math.max(6, x.m / maxM * 70) : 3}px" title="${x.m ? hm(x.m) : 'sem registro'}"></span><small>${WD_NAMES[parse(x.d).getDay()].slice(0, 3)}</small></div>`).join('')}</div>
+    <p class="small muted">Barras em rosé: noites com 7 horas ou mais.</p>
+  </section>
+  <section class="card">
+    <div class="sec-head"><h2>Humor</h2><span class="small muted">${fmtMonth(k)}</span></div>
+    <div class="moods">${MOODS.map(([e, l]) => `<button data-act="mood" data-m="${e}" aria-pressed="${S.mood[d] === e}" aria-label="${l}">${e}</button>`).join('')}</div>
+    <div class="mood-map">${map}</div>
+  </section>`;
+}
+
+/* ---------- etapa 2: Eu ---------- */
+const cap = s => s.charAt(0).toUpperCase() + s.slice(1);
+const year = () => today().slice(0, 4);
+const weekDays = d => { const s = addDays(d, -parse(d).getDay()); return Array.from({ length: 7 }, (_, i) => addDays(s, i)); };
+const segBar = (tabs, cur, act, sub) => `<div class="seg ${sub ? 'sub' : ''}" role="tablist">${tabs.map(([id, l]) => `<button data-act="${act}" data-t="${id}" aria-pressed="${cur === id}">${l}</button>`).join('')}</div>`;
+const EU_TABS = [['bem', 'Bem-estar'], ['estudos', 'Estudos'], ['hobbies', 'Hobbies'], ['diario', 'Diário'], ['metas', 'Metas'], ['ciclo', 'Ciclo']];
+views.eu = () => `<header class="hello"><p class="eyebrow">Eu</p><h1>Cuidar de <em>você</em></h1></header>
+  ${segBar(EU_TABS, ui.euTab, 'euTab')}
+  ${({ bem: euBem, estudos: euEstudos, hobbies: euHobbies, diario: euDiario, metas: euMetas, ciclo: euCiclo })[ui.euTab]()}`;
+
+/* estudos */
+function timerText() { const r = S.study.running; if (!r) return '00:00:00'; const s = Math.max(0, Math.floor((Date.now() - r.start) / 1000)); return `${pad(Math.floor(s / 3600))}:${pad(Math.floor(s / 60) % 60)}:${pad(s % 60)}`; }
+const subj = id => S.study.subjects.find(s => s.id === id) || { id, name: 'Estudo', emoji: '📘', goal: 0 };
+const ITEM_ST = [['aprender', 'Para aprender', ''], ['praticando', 'Praticando', 'warn'], ['dominado', 'Concluído', 'ok']];
+function stopTimer() {
+  const r = S.study.running; if (!r) return 0;
+  const m = Math.min(600, Math.round((Date.now() - r.start) / 60000)); S.study.running = null;
+  if (m >= 1) S.study.sessions.push({ id: uid(), subjectId: r.subjectId, date: iso(new Date(r.start)), min: m });
+  return m >= 1 ? m : 0;
+}
+function euEstudos() {
+  const wk = weekDays(today()), run = S.study.running;
+  const cards = S.study.subjects.map(s => {
+    const min = sum(S.study.sessions.filter(x => x.subjectId === s.id && wk.includes(x.date)), x => x.min);
+    const items = S.study.items.filter(i => i.subjectId === s.id), on = run && run.subjectId === s.id;
+    return `<div class="subj">
+      <div class="subj-head"><span class="emo" style="background:var(--surface)">${esc(s.emoji)}</span>
+        <button class="row-main" data-act="editSubject" data-id="${s.id}"><span class="t">${esc(s.name)}</span><small class="num">${hm(min)} de ${s.goal ? hm(s.goal) : '—'} nesta semana</small></button>
+        ${on ? `<button class="btn sm" data-act="timerStop"><span class="timer" data-timer>${timerText()}</span>&nbsp;· Parar</button>` : `<button class="btn sm ghost" data-act="timerStart" data-id="${s.id}" style="background:var(--surface)">▶ Iniciar</button>`}</div>
+      ${s.goal ? bar(min / s.goal * 100, min >= s.goal ? 'ok' : '') : ''}
+      ${items.length ? `<ul class="list">${items.map(i => { const st = ITEM_ST.find(x => x[0] === i.status) || ITEM_ST[0]; return `<li><button class="row-main" data-act="editStudyItem" data-id="${i.id}"><span class="t">${esc(i.title)}</span></button><button class="chip ${st[2]}" data-act="cycleItem" data-id="${i.id}" aria-label="Mudar status de ${esc(i.title)}">${st[1]}</button></li>`; }).join('')}</ul>` : ''}
+      <div class="btn-row" style="gap:16px"><button class="link" data-act="newStudyItem" data-id="${s.id}">+ ${s.id === 'piano' ? 'Música' : 'Conteúdo'}</button><button class="link" data-act="newSession" data-id="${s.id}" style="color:var(--muted)">+ Registrar tempo</button></div>
+    </div>`;
+  }).join('');
+  const courses = [...S.study.courses].sort((a, b) => (a.deadline || '9').localeCompare(b.deadline || '9'));
+  const pend = courses.filter(c => !c.done), done = courses.filter(c => c.done).sort((a, b) => (b.certDate || '').localeCompare(a.certDate || ''));
+  const weekTot = sum(S.study.sessions.filter(x => wk.includes(x.date)), x => x.min);
+  return `<section class="card"><div class="sec-head"><h2>Prática da semana</h2><span class="small muted num">${hm(weekTot)} no total</span></div>
+    <p class="small muted">Use o cronômetro enquanto estuda ou registre o tempo depois. Toque no status para avançar.</p>
+    ${cards}<button class="link" data-act="newSubject" style="align-self:flex-start">+ Nova matéria</button></section>
+  <section class="card"><div class="sec-head"><h2>Cursos do trabalho</h2><button class="link" data-act="newCourse">+ Curso</button></div>
+    ${pend.length ? `<ul class="list">${pend.map(c => `<li><span class="emo">🎓</span><button class="row-main" data-act="editCourse" data-id="${c.id}"><span class="t">${esc(c.title)}</span><small>${c.deadline ? 'prazo ' + fmtShort(c.deadline) : 'sem prazo'}${c.hours ? ' · ' + c.hours + ' h' : ''}</small></button><span class="row-end" style="display:flex;flex-direction:column;align-items:flex-end;gap:6px">${c.deadline ? dueChip(c.deadline) : ''}<button class="btn sm" data-act="finishCourse" data-id="${c.id}">Concluir</button></span></li>`).join('')}</ul>` : `<p class="empty">Nenhum curso em andamento.</p>`}
+    ${done.length ? `<p class="eyebrow">Certificados</p><ul class="list">${done.map(c => `<li><span class="emo">📜</span><button class="row-main" data-act="editCourse" data-id="${c.id}"><span class="t">${esc(c.title)}</span><small>concluído em ${c.certDate ? fmtShort(c.certDate) + '/' + c.certDate.slice(0, 4) : '—'}${c.hours ? ' · ' + c.hours + ' h' : ''}</small></button></li>`).join('')}</ul><p class="small muted">Total em certificados: ${sum(done, c => +c.hours || 0)} h</p>` : ''}
+  </section>`;
+}
+
+/* hobbies */
+const HOB_TABS = [['leitura', 'Leitura'], ['treinos', 'Treinos'], ['filmes', 'Filmes e séries'], ['skincare', 'Skincare']];
+const WORKOUT_EMO = { 'Musculação': '🏋️‍♀️', 'Pilates': '🧘‍♀️', 'Corrida': '🏃‍♀️', 'Caminhada': '🚶‍♀️', 'Yoga': '🪷', 'Dança': '💃', 'Bike': '🚴‍♀️', 'Funcional': '🤸‍♀️', 'Outro': '💪' };
+const WORKOUT_TYPES = Object.keys(WORKOUT_EMO);
+const stars = n => `<span class="stars" aria-label="${n} de 5">${'★'.repeat(n)}${'☆'.repeat(5 - n)}</span>`;
+function euHobbies() { return segBar(HOB_TABS, ui.hobTab, 'hobTab', true) + ({ leitura: hobLeitura, treinos: hobTreinos, filmes: hobFilmes, skincare: hobSkin })[ui.hobTab](); }
+function hobLeitura() {
+  const y = year(), lidos = S.books.filter(b => b.status === 'lido').sort((a, b) => (b.finished || '').localeCompare(a.finished || ''));
+  const readY = lidos.filter(b => (b.finished || '').startsWith(y)), reading = S.books.filter(b => b.status === 'lendo'), want = S.books.filter(b => b.status === 'quero');
+  const goal = S.readingGoal || 12;
+  const row = b => `<li><span class="emo">📖</span><button class="row-main" data-act="editBook" data-id="${b.id}"><span class="t">${esc(b.title)}</span><small>${esc(b.author || '')}${b.status === 'lido' && b.finished ? (b.author ? ' · ' : '') + 'lido em ' + fmtShort(b.finished) + '/' + b.finished.slice(0, 4) : ''}</small>${b.status === 'lendo' && b.pages ? bar((b.page || 0) / b.pages * 100) : ''}</button>${b.status === 'lendo' ? `<span class="row-end" style="display:flex;flex-direction:column;align-items:flex-end;gap:6px"><span class="small muted num">p. ${b.page || 0}${b.pages ? '/' + b.pages : ''}</span><button class="btn sm ghost" data-act="bookPage" data-id="${b.id}">Atualizar</button></span>` : ''}</li>`;
+  return `<section class="card"><div class="sec-head"><h2>Meta de ${y}</h2><button class="link" data-act="readingGoal">editar meta</button></div>
+    <p><span class="big">${readY.length}</span> <span class="muted">de ${goal} livros lidos</span></p>${bar(readY.length / goal * 100, readY.length >= goal ? 'ok' : '')}</section>
+  <section class="card"><div class="sec-head"><h2>Lendo agora</h2><button class="link" data-act="newBook">+ Livro</button></div>${reading.length ? `<ul class="list">${reading.map(row).join('')}</ul>` : '<p class="empty">Nenhum livro em leitura. Adicione um ou mude um da lista de desejos para “Lendo”.</p>'}</section>
+  <section class="card"><div class="sec-head"><h3>Quero ler</h3></div>${want.length ? `<ul class="list">${want.map(row).join('')}</ul>` : '<p class="empty">Sua lista de desejos está vazia.</p>'}</section>
+  ${lidos.length ? `<section class="card"><div class="sec-head"><h3>Estante de lidos</h3><span class="small muted">${lidos.length}</span></div><ul class="list">${lidos.map(row).join('')}</ul></section>` : ''}`;
+}
+function hobTreinos() {
+  const wk = weekDays(today()), ws = S.workouts.filter(w => wk.includes(w.date)), days = new Set(ws.map(w => w.date)), goal = S.workoutGoal || 4;
+  const recent = [...S.workouts].sort((a, b) => b.date.localeCompare(a.date)).slice(0, 15);
+  return `<section class="card"><div class="sec-head"><h2>Esta semana</h2><button class="link" data-act="workoutGoal">meta: ${goal} dias</button></div>
+    <p><span class="big">${days.size}</span> <span class="muted">de ${goal} dias ativos · ${hm(sum(ws, w => w.min))}</span></p>${bar(days.size / goal * 100, days.size >= goal ? 'ok' : '')}
+    <div class="mood-map">${wk.map(x => `<div style="${days.has(x) ? 'background:var(--rose)' : ''}"><small style="${days.has(x) ? 'color:#fff' : ''}">${WD[parse(x).getDay()]}</small></div>`).join('')}</div></section>
+  <section class="card"><div class="sec-head"><h2>Treinos</h2><button class="link" data-act="newWorkout">+ Treino</button></div>
+    ${recent.length ? `<ul class="list">${recent.map(w => `<li><span class="emo">${WORKOUT_EMO[w.type] || '💪'}</span><button class="row-main" data-act="editWorkout" data-id="${w.id}"><span class="t">${esc(w.type)}</span><small>${esc(cap(fmtLong(w.date)))}${w.note ? ' · ' + esc(w.note) : ''}</small></button><span class="row-end small num">${hm(w.min)}</span></li>`).join('')}</ul>` : '<p class="empty">Registre seu primeiro treino.</p>'}</section>`;
+}
+function hobFilmes() {
+  const list = S.media.filter(m => m.status === ui.mediaTab).sort((a, b) => ui.mediaTab === 'visto' ? (b.rating || 0) - (a.rating || 0) : a.title.localeCompare(b.title));
+  return `<section class="card"><div class="sec-head"><h2>Filmes e séries</h2><button class="link" data-act="newMedia">+ Adicionar</button></div>
+    ${segBar([['quero', 'Quero ver'], ['visto', 'Já vi']], ui.mediaTab, 'mediaTab', true)}
+    ${list.length ? `<ul class="list">${list.map(m => `<li><span class="emo">${m.kind === 'serie' ? '📺' : '🎬'}</span><button class="row-main" data-act="editMedia" data-id="${m.id}"><span class="t">${esc(m.title)}</span><small>${m.kind === 'serie' ? 'Série' : 'Filme'}${m.status === 'visto' && m.rating ? ' · ' + stars(m.rating) : ''}</small></button>${m.status === 'quero' ? `<button class="btn sm ghost" data-act="mediaSeen" data-id="${m.id}">Já vi</button>` : ''}</li>`).join('')}</ul>` : `<p class="empty">${ui.mediaTab === 'quero' ? 'Anote aqui as indicações que você recebe.' : 'Quando assistir algo, marque “Já vi” e dê uma nota.'}</p>`}</section>`;
+}
+const skinComplete = (d, k) => { const l = (S.skinLog[d] || {})[k] || []; return S.skincare[k].length > 0 && S.skincare[k].every(i => l.includes(i.id)); };
+function hobSkin() {
+  const d = today(), log = S.skinLog[d] || {}, wk = weekDays(d);
+  const block = (k, title) => { const items = S.skincare[k], l = log[k] || [], done = items.filter(i => l.includes(i.id)).length;
+    return `<section class="card"><div class="sec-head"><h2>${title}</h2><span class="small muted num">${done}/${items.length}</span></div>
+      ${items.length ? `<ul class="list">${items.map(i => { const on = l.includes(i.id); return `<li class="${on ? 'done' : ''}"><button class="check" data-act="toggleSkin" data-k="${k}" data-id="${i.id}" aria-pressed="${on}" aria-label="${esc(i.name)}">${ICON.check}</button><span class="row-main"><span class="t">${esc(i.name)}</span></span></li>`; }).join('')}</ul>` : '<p class="empty">Adicione os produtos da sua rotina.</p>'}
+      <div class="sec-head"><span class="week" aria-label="rotina completa nos dias da semana">${wk.map(x => `<i class="${skinComplete(x, k) ? 'on' : ''}"></i>`).join('')}</span><button class="link" data-act="editSkin" data-k="${k}">editar produtos</button></div></section>`; };
+  return block('am', 'Manhã') + block('pm', 'Noite');
+}
+
+/* diário */
+function euDiario() {
+  const d = ui.journalDate, e = S.journal[d] || { text: '', grat: ['', '', ''] }, mood = S.mood[d];
+  const recent = Object.keys(S.journal).filter(k => k !== d).sort().reverse().slice(0, 8);
+  return `<div class="month-nav"><button class="icon-btn" data-act="journalDay" data-n="-1" aria-label="Dia anterior">${ICON.prev}</button><h2>${esc(cap(fmtLong(d)))}</h2><button class="icon-btn" data-act="journalDay" data-n="1" aria-label="Próximo dia" ${d >= today() ? 'disabled style="opacity:.3"' : ''}>${ICON.next}</button></div>
+  <section class="card"><div class="sec-head"><h3>Humor do dia</h3></div><div class="moods">${MOODS.map(([m, l]) => `<button data-act="mood" data-date="${d}" data-m="${m}" aria-pressed="${mood === m}" aria-label="${l}">${m}</button>`).join('')}</div></section>
+  <section class="card"><form class="fields" id="journalForm">
+    <label class="f">Como foi o seu dia?<textarea name="text" id="jText" rows="6" maxlength="5000" placeholder="Escreva livremente…">${esc(e.text)}</textarea></label>
+    <div class="f" style="display:flex;flex-direction:column;gap:8px"><span>Hoje sou grata por</span>${[0, 1, 2].map(i => `<input name="g${i}" id="jG${i}" value="${esc((e.grat || [])[i] || '')}" maxlength="140" placeholder="${i + 1}." aria-label="Gratidão ${i + 1}">`).join('')}</div>
+    <button class="btn" type="submit">Salvar no diário</button></form></section>
+  ${recent.length ? `<section class="card"><div class="sec-head"><h3>Páginas anteriores</h3></div><ul class="list">${recent.map(k => { const j = S.journal[k]; return `<li><span class="emo">${S.mood[k] || '✎'}</span><button class="row-main" data-act="openJournal" data-date="${k}"><span class="t">${esc(cap(fmtLong(k)))}</span><small>${esc((j.text || (j.grat || []).filter(Boolean).join(' · ')).slice(0, 90))}</small></button></li>`; }).join('')}</ul></section>` : ''}`;
+}
+
+/* metas */
+function euMetas() {
+  const sc = ui.goalScope, period = sc === 'mes' ? mKey(today()) : year();
+  const gs = S.goals.filter(g => g.scope === sc && g.period === period);
+  const avg = gs.length ? Math.round(sum(gs, g => g.progress) / gs.length) : 0;
+  return `${segBar([['mes', 'Metas do mês'], ['ano', 'Metas do ano']], sc, 'goalScope', true)}
+  <section class="card"><div class="sec-head"><h2>${sc === 'mes' ? fmtMonth(period) : period}</h2><button class="link" data-act="newGoal">+ Meta</button></div>
+    ${gs.length ? `<ul class="list">${gs.map(g => `<li><button class="row-main" data-act="editGoal" data-id="${g.id}" style="gap:6px"><span class="t">${g.progress >= 100 ? '✓ ' : ''}${esc(g.title)}</span>${g.note ? `<small>${esc(g.note)}</small>` : ''}${bar(g.progress, g.progress >= 100 ? 'ok' : '')}</button><span class="row-end small num">${g.progress}%</span></li>`).join('')}</ul><p class="small muted">Progresso médio: ${avg}%. Toque numa meta para atualizar.</p>` : `<p class="empty">Defina até três metas para ${sc === 'mes' ? 'este mês' : 'este ano'}. Metas pequenas e claras funcionam melhor.</p>`}</section>
+  <section class="card"><div class="sec-head"><h2>Mural dos sonhos</h2><button class="link" data-act="newVision">+ Sonho</button></div>
+    ${S.vision.length ? `<div class="vision">${S.vision.map(v => `<button data-act="editVision" data-id="${v.id}"><b>${esc(v.emoji)}</b><span>${esc(v.text)}</span></button>`).join('')}</div>` : '<p class="empty">Guarde aqui os sonhos que inspiram suas metas.</p>'}</section>`;
+}
+
+/* ciclo */
+function cycleStats() {
+  const p = [...S.periods].sort((a, b) => a.start.localeCompare(b.start));
+  const gaps = []; for (let i = 1; i < p.length; i++) { const g = daysBetween(p[i - 1].start, p[i].start); if (g >= 15 && g <= 60) gaps.push(g); }
+  const rg = gaps.slice(-6), cyc = rg.length ? Math.round(sum(rg, x => x) / rg.length) : 28;
+  const lens = p.filter(x => x.end).map(x => daysBetween(x.start, x.end) + 1).slice(-6), len = lens.length ? Math.round(sum(lens, x => x) / lens.length) : 5;
+  const last = p[p.length - 1] || null;
+  return { p, cyc, len, last, next: last ? addDays(last.start, cyc) : null, n: p.length };
+}
+function periodKind(d, cs) {
+  let lastEnd = '';
+  for (const x of cs.p) { const end = x.end || addDays(x.start, cs.len - 1); if (d >= x.start && d <= end) return 'real'; if (end > lastEnd) lastEnd = end; }
+  if (!cs.next) return '';
+  for (let k = 0; k < 3; k++) { const s = addDays(cs.next, k * cs.cyc); if (s <= lastEnd) continue; if (d >= s && d <= addDays(s, cs.len - 1)) return 'pred'; }
+  return '';
+}
+function euCiclo() {
+  const cs = cycleStats(), t = today(), open = cs.last && !cs.last.end && daysBetween(cs.last.start, t) < 12;
+  let hero;
+  if (!cs.n) hero = `<span class="eyebrow">Seu ciclo</span><b>Comece registrando</b><p class="small muted">Marque o primeiro dia da próxima menstruação, ou registre as últimas datas, para o app calcular a previsão.</p>`;
+  else if (open) hero = `<span class="eyebrow">Menstruação</span><b>Dia ${daysBetween(cs.last.start, t) + 1}</b><p class="small muted">Começou em ${fmtShort(cs.last.start)}. Duração média: ${cs.len} dias.</p>`;
+  else { const n = daysBetween(t, cs.next);
+    hero = `<span class="eyebrow">Dia ${daysBetween(cs.last.start, t) + 1} do ciclo</span><b>${n > 0 ? `Em ${n} ${n === 1 ? 'dia' : 'dias'}` : n === 0 ? 'Prevista para hoje' : `Atrasada ${-n} ${n === -1 ? 'dia' : 'dias'}`}</b><p class="small muted">Próxima menstruação prevista: ${esc(fmtLong(cs.next))}.</p>`; }
+  return `<section class="cycle-hero">${hero}<div class="btn-row">${open ? `<button class="btn" data-act="periodEnd">Terminou hoje</button>` : `<button class="btn" data-act="periodStart">Começou hoje</button>`}<button class="btn ghost" data-act="newPeriod" style="background:var(--surface)">Registrar datas</button></div></section>
+  ${cs.n ? `<section class="stats"><div class="stat"><span class="eyebrow">Ciclo médio</span><b>${cs.cyc}<span class="muted" style="font-size:1rem"> dias</span></b></div><div class="stat"><span class="eyebrow">Menstruação</span><b>${cs.len}<span class="muted" style="font-size:1rem"> dias</span></b></div></section>` : ''}
+  <section class="card"><div class="sec-head"><h2>Histórico</h2><span class="small muted">${cs.n} ${cs.n === 1 ? 'registro' : 'registros'}</span></div>
+    ${cs.n ? `<ul class="list">${[...cs.p].reverse().map(x => `<li><span class="emo">🌸</span><button class="row-main" data-act="editPeriod" data-id="${x.id}"><span class="t">${fmtShort(x.start)} → ${x.end ? fmtShort(x.end) : 'em andamento'}</span><small>${x.end ? (daysBetween(x.start, x.end) + 1) + ' dias' : ''}</small></button></li>`).join('')}</ul>` : '<p class="empty">Nenhum registro ainda.</p>'}
+    <p class="small muted">A previsão usa a média dos seus últimos ciclos e aparece na Agenda. É só uma estimativa e não serve como método contraceptivo.</p></section>`;
+}
+
+/* ---------- etapa 2: compras ---------- */
+views.mais = () => `<header class="hello"><p class="eyebrow">Mais</p><h1>${ui.maisTab === 'compras' ? 'Compras' : 'Ajustes'}</h1></header>
+  ${segBar([['compras', 'Lista de compras'], ['ajustes', 'Ajustes']], ui.maisTab, 'maisTab')}${ui.maisTab === 'compras' ? maisCompras() : maisAjustes()}`;
+function addShop(name) {
+  name = String(name || '').trim(); if (!name) return; const L = ui.shopList;
+  if (!S.shopping.some(i => i.list === L && !i.done && i.name.toLowerCase() === name.toLowerCase())) S.shopping.push({ id: uid(), list: L, name, done: false });
+  const fr = S.frequent[L] = S.frequent[L] || [];
+  if (!fr.some(n => n.toLowerCase() === name.toLowerCase())) { fr.push(name); if (fr.length > 40) fr.shift(); }
+}
+function maisCompras() {
+  const L = ui.shopList, items = S.shopping.filter(i => i.list === L), pend = items.filter(i => !i.done), got = items.filter(i => i.done);
+  const freq = (S.frequent[L] || []).filter(n => !pend.some(i => i.name.toLowerCase() === n.toLowerCase()));
+  const row = i => `<li class="${i.done ? 'done' : ''}"><button class="check" data-act="toggleShop" data-id="${i.id}" aria-pressed="${i.done}" aria-label="${esc(i.name)}">${ICON.check}</button><span class="row-main"><span class="t">${esc(i.name)}</span></span><button class="icon-btn" data-act="delShop" data-id="${i.id}" aria-label="Remover ${esc(i.name)}" style="width:30px;height:30px;background:transparent;color:var(--muted)">${ICON.close}</button></li>`;
+  return `${segBar([['mercado', '🛒 Mercado'], ['farmacia', '💊 Farmácia']], L, 'shopList', true)}
+  <section class="card"><form class="inline-add" id="shopAdd"><input name="item" id="shopItem" placeholder="Adicionar item…" maxlength="60" autocomplete="off" aria-label="Novo item"><button class="btn" type="submit">Adicionar</button></form>
+    ${pend.length ? `<ul class="list">${pend.map(row).join('')}</ul>` : '<p class="empty">Lista vazia. Adicione itens acima ou toque nos frequentes.</p>'}
+    ${got.length ? `<div class="sec-head"><span class="eyebrow">No carrinho (${got.length})</span><button class="link" data-act="clearShop">Limpar comprados</button></div><ul class="list">${got.map(row).join('')}</ul>` : ''}</section>
+  <section class="card"><div class="sec-head"><h3>Itens frequentes</h3><button class="link" data-act="editFrequent">editar</button></div>
+    ${freq.length ? `<div class="chips">${freq.map(n => `<button class="chip" data-act="addFrequent" data-n="${esc(n)}">+ ${esc(n)}</button>`).join('')}</div>` : '<p class="empty small">Os itens que você adiciona ficam guardados aqui para a próxima compra.</p>'}</section>`;
+}
+function maisAjustes() {
+  const exp = S.categories.filter(c => c.type === 'despesa'), inc = S.categories.filter(c => c.type === 'receita');
+  const catList = list => `<ul class="list">${list.map(c => `<li><span class="emo">${esc(c.emoji)}</span><button class="row-main" data-act="editCat" data-id="${c.id}"><span class="t">${esc(c.name)}</span></button></li>`).join('')}</ul>`;
+  return `
+  <section class="card"><form class="fields" id="settingsForm">
+    <label class="f">Seu nome<input name="name" id="setName" value="${esc(S.settings.name)}" maxlength="30" autocomplete="given-name"></label>
+    <label class="f">Meta de água (copos de 250 ml)<input name="waterGoal" id="setWater" type="number" min="1" max="30" value="${S.settings.waterGoal}"></label>
+    <div class="f" style="display:flex;flex-direction:column;gap:6px"><span class="f" style="display:block">Tema</span>
+      <div class="radio-seg">${[['auto', 'Automático'], ['light', 'Claro'], ['dark', 'Escuro']].map(([v, l]) => `<label><input type="radio" name="theme" value="${v}" ${S.settings.theme === v ? 'checked' : ''}><span>${l}</span></label>`).join('')}</div></div>
+    <button class="btn" type="submit">Salvar ajustes</button>
+  </form></section>
+  <section class="card"><div class="sec-head"><h2>Categorias</h2><button class="link" data-act="newCat">+ Nova</button></div>
+    <p class="eyebrow">Despesas</p>${catList(exp)}<p class="eyebrow">Receitas</p>${catList(inc)}</section>
+  <section class="card"><div class="sec-head"><h2>Backup</h2></div>
+    <p class="small muted">Seus dados ficam guardados só neste navegador. Exporte um backup de vez em quando e guarde o arquivo no Drive ou no e-mail. ${S.settings.lastBackup ? `Último backup: ${fmtShort(S.settings.lastBackup)}.` : 'Nenhum backup feito ainda.'}</p>
+    <div class="btn-row"><button class="btn" data-act="exportData">Exportar backup</button><button class="btn ghost" data-act="importData">Importar backup</button></div></section>
+  <section class="card"><div class="sec-head"><h2>Instalar no celular</h2></div>
+    <p class="small">No Android, abra este link no Chrome, toque no menu <b>⋮</b> e escolha <b>Adicionar à tela inicial</b>. O planner vira um ícone como qualquer app.</p></section>
+  <section class="card"><div class="sec-head"><h2>Dados</h2></div>
+    <div class="btn-row">${S.settings.sample ? `<button class="btn ghost" data-act="clearSample">Apagar exemplos</button>` : `<button class="btn ghost" data-act="loadSample">Ver com dados de exemplo</button>`}<button class="btn danger" data-act="wipe">Apagar tudo</button></div></section>`;
+};
+
+/* ---------- gráficos ---------- */
+const PALETTE = ['#C98B8B', '#E2B9A6', '#A6857A', '#D8C3B0', '#8E6A6A', '#EED3CE', '#B8A08D', '#7B6660', '#F0C9B5'];
+let charts = [];
+function drawCharts() {
+  charts.forEach(c => c.destroy()); charts = [];
+  if (typeof Chart === 'undefined') { document.querySelectorAll('.chart-box').forEach(b => { b.innerHTML = '<p class="empty">Gráfico indisponível sem internet.</p>'; b.style.height = 'auto'; }); return; }
+  const cs = getComputedStyle(document.documentElement), v = n => cs.getPropertyValue(n).trim();
+  Chart.defaults.font.family = 'Jost, system-ui, sans-serif'; Chart.defaults.color = v('--muted');
+  const dn = document.getElementById('chDonut');
+  if (dn) {
+    const spent = Object.entries(spentByCat(ui.finMonth)).sort((a, b) => b[1] - a[1]);
+    charts.push(new Chart(dn, { type: 'doughnut', data: { labels: spent.map(([c]) => cat(c).name), datasets: [{ data: spent.map(x => x[1] / 100), backgroundColor: spent.map((_, i) => PALETTE[i % PALETTE.length]), borderColor: v('--surface'), borderWidth: 3, hoverOffset: 6 }] },
+      options: { cutout: '68%', maintainAspectRatio: false, plugins: { legend: { display: false }, tooltip: { callbacks: { label: c => ` ${c.label}: ${BRL.format(c.raw)}` } } } } }));
+  }
+  const bn = document.getElementById('chBars');
+  if (bn) {
+    const ks = Array.from({ length: 6 }, (_, i) => mShift(ui.finMonth, i - 5)), tot = ks.map(monthTotals);
+    charts.push(new Chart(bn, { type: 'bar', data: { labels: ks.map(fmtMonthShort), datasets: [
+      { label: 'Receitas', data: tot.map(t => t.inc / 100), backgroundColor: v('--ok'), borderRadius: 6, maxBarThickness: 16 },
+      { label: 'Despesas', data: tot.map(t => t.out / 100), backgroundColor: v('--rose'), borderRadius: 6, maxBarThickness: 16 }] },
+      options: { maintainAspectRatio: false, plugins: { legend: { display: false }, tooltip: { callbacks: { label: c => ` ${c.dataset.label}: ${BRL.format(c.raw)}` } } },
+        scales: { x: { grid: { display: false }, border: { display: false } }, y: { grid: { color: v('--line') }, border: { display: false }, ticks: { callback: x => 'R$ ' + Number(x).toLocaleString('pt-BR', { notation: 'compact' }) } } } } }));
+  }
+}
+
+/* ---------- render ---------- */
+const TABS = ['hoje', 'agenda', 'financas', 'eu', 'mais'];
+function applyTheme() {
+  const t = S.settings.theme, r = document.documentElement;
+  if (t === 'light' || t === 'dark') r.dataset.theme = t; else delete r.dataset.theme;
+}
+function render() {
+  applyTheme();
+  const el = document.getElementById('view');
+  el.innerHTML = views[ui.tab]();
+  document.querySelectorAll('.tabbar a').forEach(a => { if (a.dataset.tab === ui.tab) a.setAttribute('aria-current', 'page'); else a.removeAttribute('aria-current'); });
+  if (ui.tab === 'financas' && ui.finTab === 'resumo') drawCharts(); else { charts.forEach(c => c.destroy()); charts = []; }
+  if (!S.settings.onboarded) onboarding();
+}
+function route() { const h = location.hash.slice(1); ui.tab = TABS.includes(h) ? h : 'hoje'; render(); window.scrollTo(0, 0); }
+window.addEventListener('hashchange', route);
+const commit = (msg) => { save(); render(); if (msg) toast(msg); };
+
+/* ---------- toast, sheet, confirmação ---------- */
+let toastT;
+function toast(m) { const t = document.getElementById('toast'); t.textContent = m; t.classList.add('show'); clearTimeout(toastT); toastT = setTimeout(() => t.classList.remove('show'), 2200); }
+const layer = document.getElementById('layer');
+function closeSheet() { layer.innerHTML = ''; document.body.style.overflow = ''; }
+function openSheet({ title, body, submit = 'Salvar', onSubmit, onDelete, deleteLabel = 'Apagar', onOpen }) {
+  layer.innerHTML = `<div class="overlay" data-close="1"><div class="sheet" role="dialog" aria-modal="true" aria-label="${esc(title)}">
+    <div class="grip"></div><div class="sheet-head"><h2>${esc(title)}</h2><button class="icon-btn" data-close="1" aria-label="Fechar">${ICON.close}</button></div>
+    <form class="fields" id="sheetForm" novalidate>${body}
+      <p class="small" id="formErr" style="color:var(--bad)" hidden></p>
+      <button class="btn block" type="submit">${esc(submit)}</button>
+      ${onDelete ? `<button class="btn danger block" type="button" id="sheetDel">${esc(deleteLabel)}</button>` : ''}
+    </form></div></div>`;
+  document.body.style.overflow = 'hidden';
+  const form = document.getElementById('sheetForm');
+  form.addEventListener('submit', e => {
+    e.preventDefault();
+    const err = onSubmit(new FormData(form), form);
+    if (typeof err === 'string') { const p = document.getElementById('formErr'); p.textContent = err; p.hidden = false; return; }
+    closeSheet();
+  });
+  if (onDelete) document.getElementById('sheetDel').onclick = async () => { if (await askConfirm('Apagar este item?', 'Isso não pode ser desfeito.')) { onDelete(); closeSheet(); } };
+  onOpen && onOpen(form);
+  const f = form.querySelector('input:not([type=hidden]):not([type=radio]):not([type=checkbox]),select'); if (f && !f.value) setTimeout(() => f.focus(), 250);
+}
+layer.addEventListener('click', e => { if (e.target.closest('[data-close]') && (e.target.dataset.close || e.target.closest('button[data-close]'))) closeSheet(); });
+document.addEventListener('keydown', e => { if (e.key === 'Escape' && layer.innerHTML) closeSheet(); });
+function askConfirm(title, text, ok = 'Apagar') {
+  return new Promise(res => {
+    const wrap = document.createElement('div');
+    wrap.className = 'overlay center'; wrap.style.zIndex = 70;
+    wrap.innerHTML = `<div class="dialog" role="alertdialog" aria-modal="true"><h2>${esc(title)}</h2><p class="muted">${esc(text)}</p><div class="btn-row" style="justify-content:flex-end"><button class="btn ghost" data-r="0">Cancelar</button><button class="btn" data-r="1" style="background:var(--bad)">${esc(ok)}</button></div></div>`;
+    wrap.addEventListener('click', e => { const b = e.target.closest('[data-r]'); if (b || e.target === wrap) { wrap.remove(); res(b ? b.dataset.r === '1' : false); } });
+    document.body.appendChild(wrap); wrap.querySelector('[data-r="1"]').focus();
+  });
+}
+
+/* ---------- formulários ---------- */
+const opt = (v, l, sel) => `<option value="${esc(v)}" ${sel ? 'selected' : ''}>${esc(l)}</option>`;
+function taskForm(t, date) {
+  const isNew = !t; t = t || { title: '', priority: 'media', repeat: 'none', date: date || today(), days: [] };
+  openSheet({
+    title: isNew ? 'Nova tarefa' : 'Editar tarefa',
+    body: `<label class="f">O que fazer<input name="title" id="fTitle" value="${esc(t.title)}" maxlength="120" required></label>
+      <div class="f-row"><label class="f">Prioridade<select name="priority" id="fPri">${opt('alta', 'Alta', t.priority === 'alta')}${opt('media', 'Média', t.priority === 'media')}${opt('baixa', 'Baixa', t.priority === 'baixa')}</select></label>
+      <label class="f">Repetir<select name="repeat" id="fRep">${opt('none', 'Não repete', t.repeat === 'none')}${opt('daily', 'Todo dia', t.repeat === 'daily')}${opt('weekdays', 'Dias da semana', t.repeat === 'weekdays')}${opt('monthly', 'Todo mês', t.repeat === 'monthly')}</select></label></div>
+      <label class="f" id="dateWrap"><span id="dateLbl">Data (deixe vazio para “sem data”)</span><input type="date" name="date" id="fDate" value="${esc(t.date || '')}"></label>
+      <div class="f" id="daysWrap"><span>Quais dias</span><div class="wdays">${WD_NAMES.map((n, i) => `<label><input type="checkbox" name="days" value="${i}" ${(t.days || []).includes(i) ? 'checked' : ''}><span>${n.slice(0, 3)}</span></label>`).join('')}</div></div>`,
+    onOpen: form => {
+      const sync = () => { const r = form.repeat.value; form.querySelector('#daysWrap').hidden = r !== 'weekdays'; form.querySelector('#dateLbl').textContent = r === 'none' ? 'Data (deixe vazio para “sem data”)' : 'Começa em'; };
+      form.repeat.addEventListener('change', sync); sync();
+    },
+    onSubmit: fd => {
+      const title = fd.get('title').trim(); if (!title) return 'Escreva o nome da tarefa.';
+      const repeat = fd.get('repeat'), days = fd.getAll('days').map(Number);
+      if (repeat === 'weekdays' && !days.length) return 'Escolha pelo menos um dia da semana.';
+      const data = { title, priority: fd.get('priority'), repeat, days, date: fd.get('date') || (repeat === 'none' ? null : today()) };
+      if (isNew) S.tasks.push({ id: uid(), created: today(), doneDates: [], ...data }); else Object.assign(t, data);
+      commit(isNew ? 'Tarefa criada' : 'Tarefa atualizada');
+    },
+    onDelete: isNew ? null : () => { S.tasks = S.tasks.filter(x => x !== t); commit('Tarefa apagada'); }
+  });
+}
+function eventForm(ev, date) {
+  const isNew = !ev; ev = ev || { title: '', date: date || today(), time: '', note: '' };
+  openSheet({
+    title: isNew ? 'Novo evento' : 'Editar evento',
+    body: `<label class="f">Título<input name="title" id="eTitle" value="${esc(ev.title)}" maxlength="120" required></label>
+      <div class="f-row"><label class="f">Data<input type="date" name="date" id="eDate" value="${esc(ev.date)}" required></label><label class="f">Hora<input type="time" name="time" id="eTime" value="${esc(ev.time)}"></label></div>
+      <label class="f">Observação<textarea name="note" id="eNote" rows="2" maxlength="300">${esc(ev.note)}</textarea></label>`,
+    onSubmit: fd => {
+      const title = fd.get('title').trim(); if (!title) return 'Dê um título ao evento.'; if (!fd.get('date')) return 'Escolha a data.';
+      const data = { title, date: fd.get('date'), time: fd.get('time'), note: fd.get('note').trim() };
+      if (isNew) S.events.push({ id: uid(), ...data }); else Object.assign(ev, data);
+      ui.calDay = data.date; ui.calMonth = mKey(data.date);
+      commit(isNew ? 'Evento criado' : 'Evento atualizado');
+    },
+    onDelete: isNew ? null : () => { S.events = S.events.filter(x => x !== ev); commit('Evento apagado'); }
+  });
+}
+function txForm(tx) {
+  const isNew = !tx; tx = tx || { type: 'despesa', amount: 0, desc: '', date: mKey(today()) === ui.finMonth ? today() : ui.finMonth + '-01', catId: 'mercado', method: 'conta', cardId: '' };
+  const catOpts = type => S.categories.filter(c => c.type === type).map(c => opt(c.id, `${c.emoji} ${c.name}`, c.id === tx.catId)).join('');
+  openSheet({
+    title: isNew ? 'Novo lançamento' : 'Editar lançamento',
+    body: `<div class="radio-seg">${[['despesa', 'Despesa'], ['receita', 'Receita']].map(([v, l]) => `<label><input type="radio" name="type" value="${v}" ${tx.type === v ? 'checked' : ''}><span>${l}</span></label>`).join('')}</div>
+      <label class="f">Valor (R$)<input name="amount" id="tAmount" inputmode="decimal" placeholder="0,00" value="${centsToInput(tx.amount)}" required></label>
+      <label class="f">Descrição<input name="desc" id="tDesc" value="${esc(tx.desc)}" maxlength="80" placeholder="ex.: feira da semana"></label>
+      <div class="f-row"><label class="f">Categoria<select name="catId" id="tCat">${catOpts(tx.type)}</select></label><label class="f">Data<input type="date" name="date" id="tDate" value="${esc(tx.date)}" required></label></div>
+      <label class="f" id="payWrap">Pagamento<select name="pay" id="tPay">${opt('conta', 'Débito, Pix ou dinheiro', tx.method !== 'cartao')}${S.cards.map(c => opt('card:' + c.id, '💳 ' + c.name, tx.method === 'cartao' && tx.cardId === c.id)).join('')}</select></label>`,
+    onOpen: form => {
+      const sync = () => { const ty = form.querySelector('input[name=type]:checked').value; form.querySelector('#payWrap').hidden = ty !== 'despesa'; const cur = form.catId.value; form.catId.innerHTML = catOpts(ty); if ([...form.catId.options].some(o => o.value === cur)) form.catId.value = cur; };
+      form.querySelectorAll('input[name=type]').forEach(r => r.addEventListener('change', sync)); sync();
+    },
+    onSubmit: fd => {
+      const amount = parseMoney(fd.get('amount')); if (!(amount > 0)) return 'Informe um valor maior que zero, por exemplo 49,90.';
+      if (!fd.get('date')) return 'Escolha a data.';
+      const type = fd.get('type'), pay = type === 'despesa' ? fd.get('pay') : 'conta';
+      const data = { type, amount, desc: fd.get('desc').trim(), catId: fd.get('catId'), date: fd.get('date'), method: pay.startsWith('card:') ? 'cartao' : 'conta', cardId: pay.startsWith('card:') ? pay.slice(5) : '' };
+      if (isNew) S.transactions.push({ id: uid(), ...data }); else Object.assign(tx, data);
+      commit(isNew ? 'Lançamento salvo' : 'Lançamento atualizado');
+    },
+    onDelete: isNew ? null : () => { S.transactions = S.transactions.filter(x => x !== tx); commit('Lançamento apagado'); }
+  });
+}
+function billForm(b) {
+  const isNew = !b; b = b || { title: '', amount: 0, due: today(), repeat: 'mensal', catId: 'moradia' };
+  openSheet({
+    title: isNew ? 'Nova conta a pagar' : 'Editar conta',
+    body: `<label class="f">Nome<input name="title" id="bTitle" value="${esc(b.title)}" maxlength="80" placeholder="ex.: Internet" required></label>
+      <div class="f-row"><label class="f">Valor (R$)<input name="amount" id="bAmount" inputmode="decimal" value="${centsToInput(b.amount)}" placeholder="0,00"></label><label class="f">Vencimento<input type="date" name="due" id="bDue" value="${esc(b.due)}"></label></div>
+      <div class="f-row"><label class="f">Categoria<select name="catId" id="bCat">${S.categories.filter(c => c.type === 'despesa').map(c => opt(c.id, `${c.emoji} ${c.name}`, c.id === b.catId)).join('')}</select></label>
+      <label class="f">Repetição<select name="repeat" id="bRep">${opt('mensal', 'Todo mês', b.repeat === 'mensal')}${opt('unica', 'Só uma vez', b.repeat === 'unica')}</select></label></div>`,
+    onSubmit: fd => {
+      const title = fd.get('title').trim(), amount = parseMoney(fd.get('amount'));
+      if (!title) return 'Dê um nome à conta.'; if (!(amount > 0)) return 'Informe o valor da conta.'; if (!fd.get('due')) return 'Informe o vencimento.';
+      const data = { title, amount, due: fd.get('due'), catId: fd.get('catId'), repeat: fd.get('repeat') };
+      if (isNew) S.bills.push({ id: uid(), paidOn: null, ...data }); else Object.assign(b, data);
+      commit(isNew ? 'Conta criada' : 'Conta atualizada');
+    },
+    onDelete: isNew ? null : () => { S.bills = S.bills.filter(x => x !== b); commit('Conta apagada'); }
+  });
+}
+function cardForm(c) {
+  const isNew = !c; c = c || { name: '', closeDay: 5, dueDay: 12, limit: 0 };
+  openSheet({
+    title: isNew ? 'Novo cartão' : 'Editar cartão',
+    body: `<label class="f">Apelido do cartão<input name="name" id="cName" value="${esc(c.name)}" maxlength="30" placeholder="ex.: Cartão principal" required></label>
+      <div class="f-row"><label class="f">Dia do fechamento<input type="number" name="closeDay" id="cClose" min="1" max="31" value="${c.closeDay}"></label><label class="f">Dia do vencimento<input type="number" name="dueDay" id="cDue" min="1" max="31" value="${c.dueDay}"></label></div>
+      <label class="f">Limite (R$, opcional)<input name="limit" id="cLimit" inputmode="decimal" value="${centsToInput(c.limit)}"></label>`,
+    onSubmit: fd => {
+      const name = fd.get('name').trim(), cl = +fd.get('closeDay'), du = +fd.get('dueDay');
+      if (!name) return 'Dê um apelido ao cartão.'; if (!(cl >= 1 && cl <= 31 && du >= 1 && du <= 31)) return 'Os dias devem estar entre 1 e 31.';
+      const lim = parseMoney(fd.get('limit'));
+      const data = { name, closeDay: cl, dueDay: du, limit: lim > 0 ? lim : 0 };
+      if (isNew) S.cards.push({ id: uid(), ...data }); else Object.assign(c, data);
+      commit(isNew ? 'Cartão criado' : 'Cartão atualizado');
+    },
+    onDelete: isNew ? null : () => { S.cards = S.cards.filter(x => x !== c); S.transactions.forEach(t => { if (t.cardId === c.id) { t.method = 'conta'; t.cardId = ''; } }); commit('Cartão apagado'); }
+  });
+}
+function savingForm(s) {
+  const isNew = !s; s = s || { name: '', emoji: '🌷', goal: 0, saved: 0 };
+  openSheet({
+    title: isNew ? 'Nova caixinha' : 'Editar caixinha',
+    body: `<div class="f-row" style="grid-template-columns:72px 1fr"><label class="f">Emoji<input name="emoji" id="sEmoji" value="${esc(s.emoji)}" maxlength="4"></label><label class="f">Nome<input name="name" id="sName" value="${esc(s.name)}" maxlength="40" placeholder="ex.: Viagem" required></label></div>
+      <label class="f">Meta (R$, opcional)<input name="goal" id="sGoal" inputmode="decimal" value="${centsToInput(s.goal)}"></label>`,
+    onSubmit: fd => {
+      const name = fd.get('name').trim(); if (!name) return 'Dê um nome à caixinha.';
+      const g = parseMoney(fd.get('goal'));
+      const data = { name, emoji: fd.get('emoji').trim() || '🌷', goal: g > 0 ? g : 0 };
+      if (isNew) S.savings.push({ id: uid(), saved: 0, history: [], ...data }); else Object.assign(s, data);
+      commit(isNew ? 'Caixinha criada' : 'Caixinha atualizada');
+    },
+    onDelete: isNew ? null : () => { S.savings = S.savings.filter(x => x !== s); commit('Caixinha apagada'); }
+  });
+}
+function habitForm(h) {
+  const isNew = !h; h = h || { name: '', emoji: '🌿' };
+  openSheet({
+    title: isNew ? 'Novo hábito' : 'Editar hábito',
+    body: `<div class="f-row" style="grid-template-columns:72px 1fr"><label class="f">Emoji<input name="emoji" id="hEmoji" value="${esc(h.emoji)}" maxlength="4"></label><label class="f">Hábito<input name="name" id="hName" value="${esc(h.name)}" maxlength="50" placeholder="ex.: Estudar inglês" required></label></div>`,
+    onSubmit: fd => {
+      const name = fd.get('name').trim(); if (!name) return 'Dê um nome ao hábito.';
+      const data = { name, emoji: fd.get('emoji').trim() };
+      if (isNew) S.habits.push({ id: uid(), ...data }); else Object.assign(h, data);
+      commit(isNew ? 'Hábito criado' : 'Hábito atualizado');
+    },
+    onDelete: isNew ? null : () => { S.habits = S.habits.filter(x => x !== h); commit('Hábito apagado'); }
+  });
+}
+function catForm(c) {
+  const isNew = !c; c = c || { name: '', emoji: '🏷️', type: 'despesa' };
+  openSheet({
+    title: isNew ? 'Nova categoria' : 'Editar categoria',
+    body: `<div class="radio-seg">${[['despesa', 'Despesa'], ['receita', 'Receita']].map(([v, l]) => `<label><input type="radio" name="type" value="${v}" ${c.type === v ? 'checked' : ''}><span>${l}</span></label>`).join('')}</div>
+      <div class="f-row" style="grid-template-columns:72px 1fr"><label class="f">Emoji<input name="emoji" id="kEmoji" value="${esc(c.emoji)}" maxlength="4"></label><label class="f">Nome<input name="name" id="kName" value="${esc(c.name)}" maxlength="30" required></label></div>`,
+    onSubmit: fd => {
+      const name = fd.get('name').trim(); if (!name) return 'Dê um nome à categoria.';
+      const data = { name, emoji: fd.get('emoji').trim() || '·', type: fd.get('type') };
+      if (isNew) S.categories.push({ id: uid(), ...data }); else Object.assign(c, data);
+      commit(isNew ? 'Categoria criada' : 'Categoria atualizada');
+    },
+    onDelete: isNew ? null : () => { S.categories = S.categories.filter(x => x !== c); delete S.budgets[c.id]; commit('Categoria apagada. Lançamentos antigos ficam como “Sem categoria”.'); }
+  });
+}
+
+/* ---------- formulários: etapa 2 ---------- */
+const emojiName = (idE, idN, e, n, lbl, ph) => `<div class="f-row" style="grid-template-columns:72px 1fr"><label class="f">Emoji<input name="emoji" id="${idE}" value="${esc(e)}" maxlength="4"></label><label class="f">${lbl}<input name="name" id="${idN}" value="${esc(n)}" maxlength="80" placeholder="${ph || ''}" required></label></div>`;
+function numberSheet(title, label, val, min, max, set) {
+  openSheet({ title, body: `<label class="f">${esc(label)}<input type="number" name="v" id="numV" min="${min}" max="${max}" value="${val}" required></label>`,
+    onSubmit: fd => { const v = Math.round(+fd.get('v')); if (!(v >= min && v <= max)) return `Use um número entre ${min} e ${max}.`; set(v); commit('Meta salva'); } });
+}
+function subjectForm(s) {
+  const isNew = !s; s = s || { name: '', emoji: '📘', goal: 120 };
+  openSheet({ title: isNew ? 'Nova matéria' : 'Editar matéria',
+    body: emojiName('suEmoji', 'suName', s.emoji, s.name, 'Nome', 'ex.: Espanhol') + `<label class="f">Meta semanal (horas)<input name="goal" id="suGoal" inputmode="decimal" value="${s.goal ? String(+(s.goal / 60).toFixed(2)).replace('.', ',') : ''}" placeholder="ex.: 3"></label>`,
+    onSubmit: fd => { const name = fd.get('name').trim(); if (!name) return 'Dê um nome à matéria.';
+      const h = parseFloat(String(fd.get('goal')).replace(',', '.')); const data = { name, emoji: fd.get('emoji').trim() || '📘', goal: h > 0 ? Math.round(h * 60) : 0 };
+      if (isNew) S.study.subjects.push({ id: uid(), ...data }); else Object.assign(s, data); commit('Matéria salva'); },
+    onDelete: isNew ? null : () => { S.study.subjects = S.study.subjects.filter(x => x !== s); S.study.items = S.study.items.filter(i => i.subjectId !== s.id); if (S.study.running && S.study.running.subjectId === s.id) S.study.running = null; commit('Matéria apagada'); } });
+}
+function studyItemForm(it, subjectId) {
+  const isNew = !it; it = it || { title: '', status: 'aprender', subjectId };
+  openSheet({ title: isNew ? `Novo em ${subj(it.subjectId).name}` : 'Editar conteúdo',
+    body: `<label class="f">${it.subjectId === 'piano' ? 'Música ou exercício' : 'Conteúdo ou lição'}<input name="title" id="siTitle" value="${esc(it.title)}" maxlength="100" required></label>
+      <label class="f">Status<select name="status" id="siStatus">${ITEM_ST.map(([v, l]) => opt(v, l, it.status === v)).join('')}</select></label>`,
+    onSubmit: fd => { const title = fd.get('title').trim(); if (!title) return 'Escreva o nome.'; const data = { title, status: fd.get('status') };
+      if (isNew) S.study.items.push({ id: uid(), subjectId: it.subjectId, ...data }); else Object.assign(it, data); commit('Salvo'); },
+    onDelete: isNew ? null : () => { S.study.items = S.study.items.filter(x => x !== it); commit('Apagado'); } });
+}
+function sessionForm(subjectId) {
+  openSheet({ title: `Registrar ${subj(subjectId).name}`,
+    body: `<div class="f-row"><label class="f">Minutos<input name="min" id="seMin" type="number" min="1" max="600" required></label><label class="f">Data<input type="date" name="date" id="seDate" value="${today()}"></label></div>`,
+    onSubmit: fd => { const m = Math.round(+fd.get('min')); if (!(m >= 1 && m <= 600)) return 'Informe entre 1 e 600 minutos.';
+      S.study.sessions.push({ id: uid(), subjectId, date: fd.get('date') || today(), min: m }); commit(`${hm(m)} registrados`); } });
+}
+function courseForm(c) {
+  const isNew = !c; c = c || { title: '', deadline: '', hours: '', done: false, certDate: null };
+  openSheet({ title: isNew ? 'Novo curso' : 'Editar curso',
+    body: `<label class="f">Curso<input name="title" id="coTitle" value="${esc(c.title)}" maxlength="100" required></label>
+      <div class="f-row"><label class="f">Prazo<input type="date" name="deadline" id="coDeadline" value="${esc(c.deadline || '')}"></label><label class="f">Carga horária (h)<input type="number" name="hours" id="coHours" min="0" max="999" value="${esc(c.hours || '')}"></label></div>
+      <label class="f">Concluído em (vazio se ainda está fazendo)<input type="date" name="certDate" id="coCert" value="${esc(c.certDate || '')}"></label>`,
+    onSubmit: fd => { const title = fd.get('title').trim(); if (!title) return 'Escreva o nome do curso.'; const cert = fd.get('certDate') || null;
+      const data = { title, deadline: fd.get('deadline') || null, hours: +fd.get('hours') || 0, certDate: cert, done: !!cert };
+      if (isNew) S.study.courses.push({ id: uid(), ...data }); else Object.assign(c, data); commit('Curso salvo'); },
+    onDelete: isNew ? null : () => { S.study.courses = S.study.courses.filter(x => x !== c); commit('Curso apagado'); } });
+}
+function bookForm(b) {
+  const isNew = !b; b = b || { title: '', author: '', status: 'quero', pages: '', page: '' };
+  openSheet({ title: isNew ? 'Novo livro' : 'Editar livro',
+    body: `<label class="f">Título<input name="title" id="bkTitle" value="${esc(b.title)}" maxlength="120" required></label>
+      <label class="f">Autor(a)<input name="author" id="bkAuthor" value="${esc(b.author)}" maxlength="80"></label>
+      <label class="f">Status<select name="status" id="bkStatus">${opt('quero', 'Quero ler', b.status === 'quero')}${opt('lendo', 'Lendo', b.status === 'lendo')}${opt('lido', 'Lido', b.status === 'lido')}</select></label>
+      <div class="f-row"><label class="f">Página atual<input type="number" name="page" id="bkPage" min="0" value="${esc(b.page || '')}"></label><label class="f">Total de páginas<input type="number" name="pages" id="bkPages" min="0" value="${esc(b.pages || '')}"></label></div>`,
+    onSubmit: fd => { const title = fd.get('title').trim(); if (!title) return 'Escreva o título.'; const status = fd.get('status'), wasRead = b.status === 'lido';
+      const data = { title, author: fd.get('author').trim(), status, page: +fd.get('page') || 0, pages: +fd.get('pages') || 0 };
+      if (status === 'lido') { data.finished = b.finished || today(); if (data.pages) data.page = data.pages; } else data.finished = null;
+      if (isNew) S.books.push({ id: uid(), ...data }); else Object.assign(b, data); commit(status === 'lido' && !wasRead ? 'Mais um livro lido! 📚' : 'Livro salvo'); },
+    onDelete: isNew ? null : () => { S.books = S.books.filter(x => x !== b); commit('Livro apagado'); } });
+}
+function bookPageForm(b) {
+  openSheet({ title: b.title, submit: 'Atualizar',
+    body: `<label class="f">Estou na página${b.pages ? ` (de ${b.pages})` : ''}<input type="number" name="page" id="bpPage" min="0" value="${b.page || ''}" required></label>`,
+    onSubmit: fd => { const p = Math.max(0, Math.round(+fd.get('page') || 0)); b.page = b.pages ? Math.min(p, b.pages) : p;
+      if (b.pages && b.page >= b.pages) { b.status = 'lido'; b.finished = today(); commit('Livro concluído! 📚'); } else commit('Página atualizada'); } });
+}
+function workoutForm(w) {
+  const isNew = !w; w = w || { type: 'Pilates', min: 45, date: today(), note: '' };
+  openSheet({ title: isNew ? 'Novo treino' : 'Editar treino',
+    body: `<label class="f">Tipo<select name="type" id="wkType">${WORKOUT_TYPES.map(t => opt(t, `${WORKOUT_EMO[t]} ${t}`, w.type === t)).join('')}</select></label>
+      <div class="f-row"><label class="f">Duração (min)<input type="number" name="min" id="wkMin" min="1" max="600" value="${w.min}"></label><label class="f">Data<input type="date" name="date" id="wkDate" value="${esc(w.date)}"></label></div>
+      <label class="f">Observação<input name="note" id="wkNote" value="${esc(w.note || '')}" maxlength="80" placeholder="ex.: treino de pernas"></label>`,
+    onSubmit: fd => { const m = Math.round(+fd.get('min')); if (!(m >= 1 && m <= 600)) return 'Informe a duração em minutos.'; if (!fd.get('date')) return 'Escolha a data.';
+      const data = { type: fd.get('type'), min: m, date: fd.get('date'), note: fd.get('note').trim() };
+      if (isNew) S.workouts.push({ id: uid(), ...data }); else Object.assign(w, data); commit(isNew ? 'Treino registrado 💪' : 'Treino atualizado'); },
+    onDelete: isNew ? null : () => { S.workouts = S.workouts.filter(x => x !== w); commit('Treino apagado'); } });
+}
+function mediaForm(m) {
+  const isNew = !m; m = m || { title: '', kind: 'filme', status: ui.mediaTab, rating: 0 };
+  openSheet({ title: isNew ? 'Adicionar filme ou série' : m.title,
+    body: `<label class="f">Título<input name="title" id="mdTitle" value="${esc(m.title)}" maxlength="100" required></label>
+      <div class="f-row"><label class="f">Tipo<select name="kind" id="mdKind">${opt('filme', 'Filme', m.kind === 'filme')}${opt('serie', 'Série', m.kind === 'serie')}</select></label>
+      <label class="f">Status<select name="status" id="mdStatus">${opt('quero', 'Quero ver', m.status === 'quero')}${opt('visto', 'Já vi', m.status === 'visto')}</select></label></div>
+      <label class="f">Nota<select name="rating" id="mdRating">${opt('0', 'Sem nota', !m.rating)}${[5, 4, 3, 2, 1].map(n => opt(String(n), '★'.repeat(n) + '☆'.repeat(5 - n), m.rating === n)).join('')}</select></label>`,
+    onSubmit: fd => { const title = fd.get('title').trim(); if (!title) return 'Escreva o título.';
+      const data = { title, kind: fd.get('kind'), status: fd.get('status'), rating: +fd.get('rating') || 0 };
+      if (isNew) S.media.push({ id: uid(), ...data }); else Object.assign(m, data); ui.mediaTab = data.status; commit('Salvo'); },
+    onDelete: isNew ? null : () => { S.media = S.media.filter(x => x !== m); commit('Apagado'); } });
+}
+function skinForm(k) {
+  openSheet({ title: k === 'am' ? 'Rotina da manhã' : 'Rotina da noite',
+    body: `<label class="f">Um produto ou passo por linha, na ordem em que você usa<textarea name="lines" id="skLines" rows="7">${esc(S.skincare[k].map(i => i.name).join('\n'))}</textarea></label>`,
+    onSubmit: fd => { const old = S.skincare[k]; S.skincare[k] = fd.get('lines').split('\n').map(x => x.trim()).filter(Boolean).map(name => old.find(o => o.name === name) || { id: uid(), name }); commit('Rotina salva'); } });
+}
+function periodForm(p) {
+  const isNew = !p; p = p || { start: today(), end: '' };
+  openSheet({ title: isNew ? 'Registrar menstruação' : 'Editar registro',
+    body: `<div class="f-row"><label class="f">Primeiro dia<input type="date" name="start" id="peStart" value="${esc(p.start)}" required></label><label class="f">Último dia<input type="date" name="end" id="peEnd" value="${esc(p.end || '')}"></label></div><p class="small muted">Deixe o último dia vazio se ainda está menstruada.</p>`,
+    onSubmit: fd => { const start = fd.get('start'), end = fd.get('end') || null;
+      if (!start) return 'Informe o primeiro dia.'; if (start > today()) return 'O primeiro dia não pode estar no futuro.'; if (end && end < start) return 'O último dia precisa ser depois do primeiro.';
+      if (isNew) S.periods.push({ id: uid(), start, end }); else Object.assign(p, { start, end }); commit('Ciclo atualizado 🌸'); },
+    onDelete: isNew ? null : () => { S.periods = S.periods.filter(x => x !== p); commit('Registro apagado'); } });
+}
+function goalForm(g) {
+  const isNew = !g; g = g || { title: '', scope: ui.goalScope, progress: 0, note: '' };
+  openSheet({ title: isNew ? 'Nova meta' : 'Editar meta',
+    body: `<label class="f">Meta<input name="title" id="glTitle" value="${esc(g.title)}" maxlength="100" placeholder="ex.: Ler 2 livros" required></label>
+      <label class="f">Período<select name="scope" id="glScope">${opt('mes', 'Este mês', g.scope === 'mes')}${opt('ano', 'Este ano', g.scope === 'ano')}</select></label>
+      <label class="f">Progresso: <output id="glOut">${g.progress}%</output><input type="range" name="progress" id="glProg" min="0" max="100" step="5" value="${g.progress}"></label>
+      <label class="f">Como chegar lá (opcional)<input name="note" id="glNote" value="${esc(g.note || '')}" maxlength="120"></label>`,
+    onOpen: f => { const r = f.querySelector('#glProg'); r.addEventListener('input', () => { f.querySelector('#glOut').textContent = r.value + '%'; }); },
+    onSubmit: fd => { const title = fd.get('title').trim(); if (!title) return 'Escreva a meta.'; const scope = fd.get('scope');
+      const data = { title, scope, progress: +fd.get('progress'), note: fd.get('note').trim(), period: scope === g.scope && g.period ? g.period : (scope === 'mes' ? mKey(today()) : year()) };
+      if (isNew) S.goals.push({ id: uid(), ...data }); else Object.assign(g, data); ui.goalScope = scope; commit(data.progress >= 100 ? 'Meta alcançada! ✨' : 'Meta salva'); },
+    onDelete: isNew ? null : () => { S.goals = S.goals.filter(x => x !== g); commit('Meta apagada'); } });
+}
+function visionForm(v) {
+  const isNew = !v; v = v || { emoji: '✨', text: '' };
+  openSheet({ title: isNew ? 'Novo sonho' : 'Editar sonho',
+    body: emojiName('viEmoji', 'viText', v.emoji, v.text, 'Sonho', 'ex.: Conhecer a Itália'),
+    onSubmit: fd => { const text = fd.get('name').trim(); if (!text) return 'Escreva o sonho.'; const data = { text, emoji: fd.get('emoji').trim() || '✨' };
+      if (isNew) S.vision.push({ id: uid(), ...data }); else Object.assign(v, data); commit('Mural atualizado ✨'); },
+    onDelete: isNew ? null : () => { S.vision = S.vision.filter(x => x !== v); commit('Removido do mural'); } });
+}
+function frequentForm() {
+  const L = ui.shopList;
+  openSheet({ title: 'Itens frequentes', body: `<label class="f">Um item por linha<textarea name="lines" id="frLines" rows="8">${esc((S.frequent[L] || []).join('\n'))}</textarea></label>`,
+    onSubmit: fd => { S.frequent[L] = [...new Set(fd.get('lines').split('\n').map(x => x.trim()).filter(Boolean))]; commit('Lista salva'); } });
+}
+
+/* ---------- ações ---------- */
+const byId = (arr, id) => arr.find(x => x.id === id);
+const actions = {
+  toggleTask: b => { const t = byId(S.tasks, b.dataset.id), d = b.dataset.date; t.doneDates = t.doneDates || [];
+    if ((t.repeat || 'none') === 'none') t.doneDates = t.doneDates.length ? [] : [d];
+    else t.doneDates = t.doneDates.includes(d) ? t.doneDates.filter(x => x !== d) : [...t.doneDates, d];
+    commit(); },
+  editTask: b => taskForm(byId(S.tasks, b.dataset.id)),
+  newTask: b => taskForm(null, b.dataset.date),
+  newEvent: b => eventForm(null, b.dataset.date),
+  editEvent: b => eventForm(byId(S.events, b.dataset.id)),
+  pickDay: b => { ui.calDay = b.dataset.date; ui.calMonth = mKey(b.dataset.date); render(); },
+  calMonth: b => { ui.calMonth = mShift(ui.calMonth, +b.dataset.n); ui.calDay = mKey(today()) === ui.calMonth ? today() : ui.calMonth + '-01'; render(); },
+  finMonth: b => { ui.finMonth = mShift(ui.finMonth, +b.dataset.n); render(); },
+  finTab: b => { ui.finTab = b.dataset.t; render(); },
+  newTx: () => txForm(), editTx: b => txForm(byId(S.transactions, b.dataset.id)),
+  newBill: () => billForm(), editBill: b => billForm(byId(S.bills, b.dataset.id)),
+  payBill: async b => { const bill = byId(S.bills, b.dataset.id);
+    if (!await askConfirm(`Pagar ${bill.title}?`, `Lança uma despesa de ${money(bill.amount)} hoje${bill.repeat === 'mensal' ? ' e cria a conta do próximo mês' : ''}.`, 'Pagar')) return;
+    const d = today(); bill.paidOn = d;
+    S.transactions.push({ id: uid(), type: 'despesa', amount: bill.amount, desc: bill.title, catId: bill.catId, date: d, method: 'conta', cardId: '', billId: bill.id });
+    if (bill.repeat === 'mensal') S.bills.push({ ...bill, id: uid(), due: addMonths(bill.due, 1), paidOn: null });
+    commit('Conta paga ♡'); },
+  newCard: () => cardForm(), editCard: b => cardForm(byId(S.cards, b.dataset.id)),
+  newSaving: () => savingForm(), editSaving: b => savingForm(byId(S.savings, b.dataset.id)),
+  saveMove: b => { const s = byId(S.savings, b.dataset.id), dir = +b.dataset.dir;
+    openSheet({ title: dir > 0 ? `Guardar em ${s.name}` : `Retirar de ${s.name}`, submit: dir > 0 ? 'Guardar' : 'Retirar',
+      body: `<label class="f">Valor (R$)<input name="amount" id="mvAmount" inputmode="decimal" placeholder="0,00" required></label><p class="small muted">Saldo atual: ${money(s.saved)}</p>`,
+      onSubmit: fd => { const v = parseMoney(fd.get('amount')); if (!(v > 0)) return 'Informe um valor maior que zero.'; if (dir < 0 && v > s.saved) return 'O valor é maior que o saldo da caixinha.';
+        s.saved += dir * v; (s.history = s.history || []).push({ date: today(), amount: dir * v }); commit(dir > 0 ? 'Guardado ♡' : 'Retirada registrada'); } }); },
+  setBudget: b => { const c = cat(b.dataset.id);
+    openSheet({ title: `Limite: ${c.name}`, body: `<label class="f">Limite mensal (R$). Deixe vazio para remover.<input name="v" id="budV" inputmode="decimal" value="${centsToInput(S.budgets[c.id])}"></label>`,
+      onSubmit: fd => { const v = parseMoney(fd.get('v')); if (v > 0) S.budgets[c.id] = v; else delete S.budgets[c.id]; commit('Orçamento salvo'); } }); },
+  water: b => { const d = today(); S.water[d] = Math.max(0, (S.water[d] || 0) + +b.dataset.n); commit(+b.dataset.n > 0 && S.water[d] === S.settings.waterGoal ? 'Meta de água batida! 💧' : ''); },
+  mood: b => { const d = b.dataset.date || today(); S.mood[d] = S.mood[d] === b.dataset.m ? undefined : b.dataset.m; if (!S.mood[d]) delete S.mood[d]; commit(); },
+  toggleHabit: b => { const d = today(), l = S.habitLog[d] || []; S.habitLog[d] = l.includes(b.dataset.id) ? l.filter(x => x !== b.dataset.id) : [...l, b.dataset.id]; commit(); },
+  newHabit: () => habitForm(), editHabit: b => habitForm(byId(S.habits, b.dataset.id)),
+  newCat: () => catForm(), editCat: b => catForm(byId(S.categories, b.dataset.id)),
+  euTab: b => { ui.euTab = b.dataset.t; render(); },
+  hobTab: b => { ui.hobTab = b.dataset.t; render(); },
+  mediaTab: b => { ui.mediaTab = b.dataset.t; render(); },
+  goalScope: b => { ui.goalScope = b.dataset.t; render(); },
+  maisTab: b => { ui.maisTab = b.dataset.t; render(); },
+  shopList: b => { ui.shopList = b.dataset.t; render(); },
+  timerStart: b => { stopTimer(); S.study.running = { subjectId: b.dataset.id, start: Date.now() }; commit('Cronômetro iniciado ⏱'); },
+  timerStop: () => { const m = stopTimer(); commit(m ? `Sessão registrada: ${hm(m)}` : 'Menos de 1 minuto, não registrei'); },
+  newSubject: () => subjectForm(), editSubject: b => subjectForm(byId(S.study.subjects, b.dataset.id)),
+  newStudyItem: b => studyItemForm(null, b.dataset.id), editStudyItem: b => studyItemForm(byId(S.study.items, b.dataset.id)),
+  cycleItem: b => { const it = byId(S.study.items, b.dataset.id), i = ITEM_ST.findIndex(x => x[0] === it.status); it.status = ITEM_ST[(i + 1) % ITEM_ST.length][0]; commit(); },
+  newSession: b => sessionForm(b.dataset.id),
+  newCourse: () => courseForm(), editCourse: b => courseForm(byId(S.study.courses, b.dataset.id)),
+  finishCourse: async b => { const c = byId(S.study.courses, b.dataset.id); if (!await askConfirm(`Concluir ${c.title}?`, 'O curso vai para a lista de certificados com a data de hoje.', 'Concluir')) return; c.done = true; c.certDate = today(); commit('Parabéns pelo certificado! 🎓'); },
+  newBook: () => bookForm(), editBook: b => bookForm(byId(S.books, b.dataset.id)), bookPage: b => bookPageForm(byId(S.books, b.dataset.id)),
+  readingGoal: () => numberSheet('Meta de leitura', `Livros para ler em ${year()}`, S.readingGoal, 1, 200, v => { S.readingGoal = v; }),
+  workoutGoal: () => numberSheet('Meta de treinos', 'Dias ativos por semana', S.workoutGoal, 1, 7, v => { S.workoutGoal = v; }),
+  newWorkout: () => workoutForm(), editWorkout: b => workoutForm(byId(S.workouts, b.dataset.id)),
+  newMedia: () => mediaForm(), editMedia: b => mediaForm(byId(S.media, b.dataset.id)),
+  mediaSeen: b => { const m = byId(S.media, b.dataset.id); m.status = 'visto'; commit(); mediaForm(m); },
+  toggleSkin: b => { const d = today(), k = b.dataset.k, log = S.skinLog[d] = S.skinLog[d] || {}; const l = log[k] || []; log[k] = l.includes(b.dataset.id) ? l.filter(x => x !== b.dataset.id) : [...l, b.dataset.id]; commit(skinComplete(d, k) ? 'Rotina completa ✨' : ''); },
+  editSkin: b => skinForm(b.dataset.k),
+  journalDay: b => { const n = addDays(ui.journalDate, +b.dataset.n); if (n <= today()) { ui.journalDate = n; render(); } },
+  openJournal: b => { ui.journalDate = b.dataset.date; render(); window.scrollTo(0, 0); },
+  newGoal: () => goalForm(), editGoal: b => goalForm(byId(S.goals, b.dataset.id)),
+  newVision: () => visionForm(), editVision: b => visionForm(byId(S.vision, b.dataset.id)),
+  periodStart: () => { S.periods.push({ id: uid(), start: today(), end: null }); commit('Registrado. Se cuida 🌸'); },
+  periodEnd: () => { const cs = cycleStats(); if (cs.last) cs.last.end = today(); commit('Fim registrado 🌸'); },
+  newPeriod: () => periodForm(), editPeriod: b => periodForm(byId(S.periods, b.dataset.id)),
+  toggleShop: b => { const i = byId(S.shopping, b.dataset.id); i.done = !i.done; commit(); },
+  delShop: b => { S.shopping = S.shopping.filter(x => x.id !== b.dataset.id); commit(); },
+  clearShop: () => { S.shopping = S.shopping.filter(x => !(x.list === ui.shopList && x.done)); commit('Lista limpa'); },
+  addFrequent: b => { addShop(b.dataset.n); commit(); },
+  editFrequent: () => frequentForm(),
+  exportData, importData: () => document.getElementById('importFile').click(),
+  loadSample: async () => { if (S.tasks.length + S.transactions.length && !await askConfirm('Carregar exemplos?', 'Os exemplos substituem os dados atuais. Faça um backup antes, se quiser guardar o que já tem.', 'Carregar')) return; S = sampleData(S.settings.name); commit('Exemplos carregados'); },
+  clearSample: async () => { if (!await askConfirm('Começar do zero?', 'Os dados de exemplo serão apagados. Seu nome e preferências ficam.', 'Limpar')) return; const st = { ...S.settings, sample: false, createdAt: today() }; S = defaults(); S.settings = st; commit('Tudo pronto para você ♡'); },
+  wipe: async () => { if (!await askConfirm('Apagar tudo?', 'Tarefas, finanças, hábitos e ajustes serão apagados deste aparelho. Não dá para desfazer.', 'Apagar tudo')) return; S = defaults(); save(); location.hash = '#hoje'; render(); }
+};
+document.addEventListener('click', e => {
+  const b = e.target.closest('[data-act]'); if (!b || !actions[b.dataset.act]) return;
+  e.preventDefault(); actions[b.dataset.act](b);
+});
+document.addEventListener('click', e => { const a = e.target.closest('a[data-fin]'); if (a) ui.finTab = a.dataset.fin; });
+document.addEventListener('submit', e => {
+  if (e.target.id === 'sleepForm') { e.preventDefault(); const fd = new FormData(e.target); S.sleep[today()] = { bed: fd.get('bed'), wake: fd.get('wake') }; commit(`Sono registrado: ${hm(sleepMinutes(S.sleep[today()]))}`); }
+  if (e.target.id === 'journalForm') { e.preventDefault(); const fd = new FormData(e.target), text = fd.get('text').trim(), grat = [0, 1, 2].map(i => fd.get('g' + i).trim());
+    if (text || grat.some(Boolean)) S.journal[ui.journalDate] = { text, grat }; else delete S.journal[ui.journalDate]; commit('Diário salvo ✎'); }
+  if (e.target.id === 'shopAdd') { e.preventDefault(); addShop(new FormData(e.target).get('item')); commit(); const el = document.getElementById('shopItem'); if (el) el.focus(); }
+  if (e.target.id === 'settingsForm') { e.preventDefault(); const fd = new FormData(e.target); S.settings.name = fd.get('name').trim(); S.settings.waterGoal = Math.min(30, Math.max(1, +fd.get('waterGoal') || 8)); S.settings.theme = fd.get('theme'); commit('Ajustes salvos'); }
+});
+
+/* ---------- backup ---------- */
+async function exportData() {
+  const data = JSON.stringify(S, null, 1), filename = `planner-backup-${today()}.json`;
+  let dl = null; try { dl = window.claude && window.claude.use ? await window.claude.use('downloads') : null; } catch (e) { dl = null; }
+  if (dl) {
+    try { await dl.save({ filename, data }); S.settings.lastBackup = today(); commit('Backup salvo ♡'); return; }
+    catch (err) { if (err && err.code === 'declined') { toast('Backup cancelado.'); return; } if (err && err.code === 'rate_limited') { toast('Aguarde um instante e tente de novo.'); return; } }
+  }
+  if (!window.claude) { // versão independente: download comum do navegador
+    try {
+      const url = URL.createObjectURL(new Blob([data], { type: 'application/json' }));
+      const a = document.createElement('a'); a.href = url; a.download = filename; document.body.appendChild(a); a.click(); a.remove();
+      setTimeout(() => URL.revokeObjectURL(url), 4000);
+      S.settings.lastBackup = today(); commit('Backup baixado ♡ Guarde o arquivo no Drive ou no e-mail.'); return;
+    } catch (e) { /* cai no modo copiar */ }
+  }
+  openSheet({ title: 'Copiar backup', submit: 'Copiar e fechar',
+    body: `<p class="small muted">Não foi possível baixar o arquivo aqui. Copie o texto abaixo e cole numa nota ou e-mail para guardar.</p><label class="f">Backup<textarea id="bkText" rows="8" readonly>${esc(data)}</textarea></label>`,
+    onSubmit: () => { const ta = document.getElementById('bkText'); (navigator.clipboard ? navigator.clipboard.writeText(ta.value) : Promise.reject()).then(() => toast('Backup copiado')).catch(() => { ta.select(); toast('Selecione e copie o texto'); }); S.settings.lastBackup = today(); save(); return 'Backup copiado. Pode fechar.'; } });
+}
+document.getElementById('importFile').addEventListener('change', e => {
+  const f = e.target.files[0]; e.target.value = ''; if (!f) return;
+  const r = new FileReader();
+  r.onload = async () => {
+    let o; try { o = JSON.parse(r.result); } catch (err) { toast('Arquivo inválido: não é um backup do planner.'); return; }
+    if (!o || !o.settings || !Array.isArray(o.tasks)) { toast('Arquivo inválido: não é um backup do planner.'); return; }
+    if (!await askConfirm('Importar backup?', 'Os dados atuais deste aparelho serão substituídos pelos do arquivo.', 'Importar')) return;
+    S = migrate(o); S.settings.onboarded = true; commit('Backup importado ♡');
+  };
+  r.readAsText(f);
+});
+
+/* ---------- boas-vindas ---------- */
+function onboarding() {
+  if (document.getElementById('onb')) return;
+  const w = document.createElement('div'); w.className = 'overlay center'; w.id = 'onb'; w.style.zIndex = 80;
+  w.innerHTML = `<form class="dialog onboard" id="onbForm"><span class="mark" aria-hidden="true">✿</span><h1 style="font-size:2rem">Seu planner</h1>
+    <p class="muted">Tarefas, agenda, finanças e autocuidado num lugar só. Como você quer ser chamada?</p>
+    <label class="f" style="width:100%;text-align:left">Seu nome<input name="name" id="onbName" maxlength="30" autocomplete="given-name" placeholder="opcional"></label>
+    <div class="btn-row" style="width:100%;flex-direction:column"><button class="btn block" name="mode" value="zero">Começar do zero</button><button class="btn ghost block" name="mode" value="sample">Ver com dados de exemplo</button></div></form>`;
+  document.body.appendChild(w);
+  w.querySelector('form').addEventListener('submit', e => {
+    e.preventDefault(); const name = w.querySelector('#onbName').value.trim(); const mode = e.submitter ? e.submitter.value : 'zero';
+    if (mode === 'sample') S = sampleData(name); else { S.settings.name = name; S.settings.createdAt = today(); }
+    S.settings.onboarded = true; w.remove(); commit(name ? `Que bom te ver, ${name} ♡` : 'Bem-vinda ♡');
+  });
+}
+
+/* ---------- dados de exemplo ---------- */
+function sampleData(name) {
+  const s = defaults(), d = today(), k = mKey(d);
+  s.settings = { ...s.settings, name: name || '', onboarded: true, sample: true, createdAt: d };
+  s.tasks = [
+    { id: uid(), title: 'Praticar piano 20 minutos', priority: 'media', repeat: 'daily', days: [], date: addDays(d, -10), created: addDays(d, -10), doneDates: [addDays(d, -1)] },
+    { id: uid(), title: 'Aula de inglês', priority: 'alta', repeat: 'weekdays', days: [2, 4], date: addDays(d, -20), created: addDays(d, -20), doneDates: [] },
+    { id: uid(), title: 'Enviar módulo 3 do curso do trabalho', priority: 'alta', repeat: 'none', days: [], date: d, created: d, doneDates: [] },
+    { id: uid(), title: 'Regar as plantas', priority: 'baixa', repeat: 'weekdays', days: [1, 4], date: addDays(d, -30), created: addDays(d, -30), doneDates: [] },
+    { id: uid(), title: 'Marcar dermatologista', priority: 'media', repeat: 'none', days: [], date: null, created: d, doneDates: [] },
+    { id: uid(), title: 'Separar roupas para doação', priority: 'baixa', repeat: 'none', days: [], date: addDays(d, 3), created: d, doneDates: [] }
+  ];
+  s.events = [
+    { id: uid(), title: 'Pilates', date: d, time: '18:30', note: '' },
+    { id: uid(), title: 'Dentista', date: addDays(d, 2), time: '15:00', note: 'Levar carteirinha do plano' },
+    { id: uid(), title: 'Aniversário da Ju', date: addDays(d, 6), time: '20:00', note: '' }
+  ];
+  s.cards = [{ id: 'cardA', name: 'Cartão principal', closeDay: 5, dueDay: 12, limit: 500000 }];
+  const tx = [], add = (dd, type, amount, catId, desc, card) => tx.push({ id: uid(), type, amount, catId, desc, date: dd, method: card ? 'cartao' : 'conta', cardId: card ? 'cardA' : '' });
+  for (let i = 5; i >= 0; i--) {
+    const m = mShift(k, -i), day = n => `${m}-${pad(n)}`, lim = i === 0 ? parse(d).getDate() : 28, ok = n => n <= lim;
+    if (ok(5)) add(day(5), 'receita', 650000, 'salario', 'Salário');
+    if (ok(6)) add(day(6), 'despesa', 180000, 'moradia', 'Aluguel');
+    if (ok(8)) add(day(8), 'despesa', 52000 + i * 3100, 'mercado', 'Compras do mês', true);
+    if (ok(10)) add(day(10), 'despesa', 9900, 'assinaturas', 'Streaming e música', true);
+    if (ok(3)) add(day(3), 'despesa', 22000, 'transporte', 'Combustível');
+    if (ok(9)) add(day(9), 'despesa', 32000, 'educacao', 'Mensalidade do inglês');
+    if (ok(11)) add(day(11), 'despesa', 15000 + (i % 3) * 7000, 'beleza', 'Skincare e unhas', true);
+    if (ok(2)) add(day(2), 'despesa', 12000 + (i % 2) * 9000, 'lazer', 'Jantar com amigas', true);
+    if (i % 2 === 0 && ok(4)) add(day(4), 'receita', 45000, 'extra', 'Venda de roupas usadas');
+    if (ok(7)) add(day(7), 'despesa', 8900, 'saude', 'Farmácia');
+  }
+  add(d, 'despesa', 3800, 'mercado', 'Padaria');
+  s.transactions = tx;
+  s.budgets = { mercado: 60000, lazer: 25000, beleza: 25000, transporte: 30000 };
+  s.bills = [
+    { id: uid(), title: 'Internet', amount: 11990, due: addDays(d, 1), repeat: 'mensal', catId: 'moradia', paidOn: null },
+    { id: uid(), title: 'Academia', amount: 14900, due: addDays(d, 4), repeat: 'mensal', catId: 'saude', paidOn: null },
+    { id: uid(), title: 'Conta de luz', amount: 18750, due: addDays(d, 9), repeat: 'mensal', catId: 'moradia', paidOn: null }
+  ];
+  s.savings = [
+    { id: uid(), name: 'Viagem para o Chile', emoji: '✈️', goal: 800000, saved: 315000, history: [] },
+    { id: uid(), name: 'Reserva de emergência', emoji: '🌷', goal: 2000000, saved: 1240000, history: [] }
+  ];
+  for (let i = 1; i <= 9; i++) { const dd = addDays(d, -i); s.habitLog[dd] = ['h1', 'h2', 'h3'].filter((h, j) => (i + j) % 4 !== 0); s.water[dd] = 5 + (i % 4); }
+  s.habitLog[d] = ['h2']; s.water[d] = 3;
+  const bed = ['23:10', '22:45', '00:20', '23:30', '22:50', '23:15', '01:00'], wake = ['06:50', '06:40', '07:00', '06:45', '07:10', '08:30', '09:00'];
+  for (let i = 1; i <= 7; i++) s.sleep[addDays(d, -i)] = { bed: bed[i - 1], wake: wake[i - 1] };
+  const md = ['🙂', '😄', '🙂', '😐', '🙂', '😔', '😄', '🙂', '🙂', '😐', '😄', '🙂'];
+  for (let i = 1; i < parse(d).getDate() && i <= 12; i++) s.mood[addDays(d, -i)] = md[i - 1];
+  // etapa 2
+  const st = s.study;
+  [[0, 'piano', 25], [1, 'piano', 30], [1, 'ingles', 45], [2, 'ingles', 30], [3, 'piano', 20], [4, 'cursos', 60], [5, 'ingles', 40], [6, 'piano', 35], [2, 'cursos', 50]]
+    .forEach(([i, sub, min]) => st.sessions.push({ id: uid(), subjectId: sub, date: addDays(d, -i), min }));
+  st.items = [['piano', 'Clair de Lune, Debussy', 'praticando'], ['piano', 'Escalas maiores com as duas mãos', 'dominado'], ['piano', 'Prelúdio em Dó maior, Bach', 'aprender'],
+    ['ingles', 'Phrasal verbs, unidade 4', 'praticando'], ['ingles', 'Um podcast por semana', 'praticando'], ['ingles', 'Present perfect', 'dominado']]
+    .map(([subjectId, title, status]) => ({ id: uid(), subjectId, title, status }));
+  st.courses = [
+    { id: uid(), title: 'Excel avançado', deadline: addDays(d, 5), hours: 20, done: false, certDate: null },
+    { id: uid(), title: 'Gestão do tempo e prioridades', deadline: addDays(d, 24), hours: 8, done: false, certDate: null },
+    { id: uid(), title: 'Proteção de dados (LGPD)', deadline: null, hours: 12, done: true, certDate: addDays(d, -20) }];
+  s.books = [
+    { id: uid(), title: 'Tudo é rio', author: 'Carla Madeira', status: 'lendo', pages: 208, page: 120, finished: null },
+    { id: uid(), title: 'Hábitos atômicos', author: 'James Clear', status: 'lido', pages: 320, page: 320, finished: addDays(d, -40) },
+    { id: uid(), title: 'Torto arado', author: 'Itamar Vieira Junior', status: 'lido', pages: 264, page: 264, finished: addDays(d, -95) },
+    { id: uid(), title: 'O avesso da pele', author: 'Jeferson Tenório', status: 'quero', pages: 0, page: 0, finished: null },
+    { id: uid(), title: 'A biblioteca da meia-noite', author: 'Matt Haig', status: 'quero', pages: 0, page: 0, finished: null }];
+  s.workouts = [[1, 'Pilates', 50], [2, 'Caminhada', 40], [4, 'Musculação', 60], [6, 'Pilates', 50], [8, 'Dança', 45], [9, 'Musculação', 55]]
+    .map(([i, type, min]) => ({ id: uid(), type, min, date: addDays(d, -i), note: '' }));
+  s.media = [
+    { id: uid(), title: 'Bridgerton', kind: 'serie', status: 'quero', rating: 0 }, { id: uid(), title: 'Anatomia de uma queda', kind: 'filme', status: 'quero', rating: 0 },
+    { id: uid(), title: 'Adoráveis mulheres', kind: 'filme', status: 'visto', rating: 5 }, { id: uid(), title: 'Emily em Paris', kind: 'serie', status: 'visto', rating: 3 }];
+  for (let i = 1; i <= 5; i++) s.skinLog[addDays(d, -i)] = { am: ['s1', 's2', 's3', 's4'], pm: i <= 3 ? ['s5', 's6', 's7', 's8'] : ['s5', 's6'] };
+  s.skinLog[d] = { am: ['s1', 's2'] };
+  s.journal[addDays(d, -1)] = { text: 'Dia corrido no trabalho, mas consegui ir ao pilates e praticar piano à noite. Quero dormir mais cedo amanhã.', grat: ['A aula de pilates', 'A ligação da minha irmã', 'Um chá quentinho antes de dormir'] };
+  s.goals = [
+    { id: uid(), title: 'Terminar “Tudo é rio”', scope: 'mes', period: k, progress: 60, note: '20 páginas por dia' },
+    { id: uid(), title: 'Guardar R$ 500 para a viagem', scope: 'mes', period: k, progress: 70, note: '' },
+    { id: uid(), title: 'Praticar piano 4 vezes por semana', scope: 'mes', period: k, progress: 50, note: '' },
+    { id: uid(), title: 'Concluir o nível B2 de inglês', scope: 'ano', period: d.slice(0, 4), progress: 40, note: '' },
+    { id: uid(), title: 'Tocar Clair de Lune inteira', scope: 'ano', period: d.slice(0, 4), progress: 55, note: '' }];
+  s.vision = [['✈️', 'Conhecer o Chile e o deserto do Atacama'], ['🏡', 'Um cantinho de leitura em casa'], ['🎹', 'Tocar num recital em família'], ['🧘‍♀️', 'Fazer um retiro de yoga']]
+    .map(([emoji, text]) => ({ id: uid(), emoji, text }));
+  s.periods = [[-83, -79], [-55, -51], [-27, -23]].map(([a, b]) => ({ id: uid(), start: addDays(d, a), end: addDays(d, b) }));
+  s.shopping = [['mercado', 'Leite', false], ['mercado', 'Frutas da semana', false], ['mercado', 'Café', false], ['mercado', 'Pão de forma', true], ['farmacia', 'Protetor solar', false]]
+    .map(([list, name, done]) => ({ id: uid(), list, name, done }));
+  return s;
+}
+
+setInterval(() => { if (!S.study.running) return; const t = timerText(); document.querySelectorAll('[data-timer]').forEach(e => { e.textContent = t; }); }, 1000);
+route();
+})();
+</script>
+
+</body>
+</html>
